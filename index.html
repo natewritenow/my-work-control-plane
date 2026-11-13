@@ -296,6 +296,9 @@
   @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
   .chat-chips .btn { white-space: normal; height: auto; min-height: 26px; text-align: left; }
 
+  .engine-label { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 11px; color: #0073cf; margin: -4px 0 6px; }
+  .face.engine { border-radius: 4px; background: #ebf6ff; color: #0073cf; border-color: transparent; }
+
   /* Toast with undo. */
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 14px; background: #333; color: #fff; font-size: 12px; padding: 8px 12px 8px 14px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.2); transition: opacity .2s, transform .2s; z-index: 1000; }
   .toast.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
@@ -354,7 +357,7 @@
       <a class="nav-sidebar__item is-active" data-nav="today"><svg class="icon icon-14"><use href="#aha-icon-target"></use></svg> Today</a>
       <a class="nav-sidebar__item" data-nav="elle"><svg class="elle-icon" style="width:14px;height:14px"><use href="#elle-icon"></use></svg> Elle</a>
       <div class="nav-sidebar__group-header">Agents</div>
-      <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Matchday PM"><span data-face="Matchday PM" data-size="s16"></span> Matchday PM</a>
+      <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Product ops agent"><span data-face="Product ops agent" data-size="s16"></span> Product ops agent</a>
       <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Validation agent"><span data-face="Validation agent" data-size="s16"></span> Validation agent</a>
       <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Coding agent"><span data-face="Coding agent" data-size="s16"></span> Coding agent</a>
       <div class="nav-sidebar__group-header">Everything else</div>
@@ -392,6 +395,7 @@
       </div>
       <div id="view-work">
 
+      <div class="engine-label"><svg class="icon icon-14"><use href="#aha-icon-roadmaps"></use></svg>Powered by the Aha! decision engine</div>
       <div class="phases">
         <div class="phase-band aim">Aim</div>
         <div class="phase-band build">Build</div>
@@ -450,18 +454,20 @@ const PEOPLE = {
   Nina:    { name: 'Nina Brooks', init: 'NB', photo: 'https://randomuser.me/api/portraits/women/68.jpg' },
   Sam:     { name: 'Sam Kowalski', init: 'SK', photo: 'https://randomuser.me/api/portraits/men/75.jpg' },
   Elena:   { name: 'Elena Lopez', init: 'EL', photo: 'https://randomuser.me/api/portraits/women/12.jpg' },
-  'Matchday PM':      { agent: true, init: 'MP' },
+  'Product ops agent':      { agent: true, init: 'PO' },
+  'Decision engine':  { engine: true },
   'Validation agent': { agent: true, init: 'VA' },
   'Coding agent':     { agent: true, init: 'CA' },
   Elle:               { elle: true },
 };
 function face(key, size = '') {
   const p = PEOPLE[key] || { init: key.slice(0, 2).toUpperCase() };
+  if (p.engine) return `<span class="face engine ${size}" title="Aha! decision engine"><svg style="width:64%;height:64%"><use href="#aha-icon-roadmaps"></use></svg></span>`;
   if (p.elle) return `<span class="face agent ${size}"><svg class="elle-icon" style="width:70%;height:70%"><use href="#elle-icon"></use></svg></span>`;
   if (p.agent) return `<span class="face agent ${size}" title="${key}">${p.init}</span>`;
   return `<span class="face ${size}" title="${p.name}"><img src="${p.photo}" alt="${p.name}" onerror="this.parentNode.textContent='${p.init}'"></span>`;
 }
-const displayName = k => k === 'you' ? 'You' : k;
+const displayName = k => k === 'you' ? 'You' : k === 'Decision engine' ? 'Aha! decision engine' : k;
 document.querySelectorAll('[data-face]').forEach(el => el.outerHTML = face(el.dataset.face, el.dataset.size));
 
 const STAGES = [
@@ -478,24 +484,24 @@ const NAME = Object.fromEntries(STAGES.map(s => [s.id, s.name]));
 
 const QUEUE = {
   mine: [
-    { id: 'q1', stage: 'plan', kind: 'Ranked list', title: "Agree on this week's top 10 features", why: 'Matchday PM ranked them against the season goal. 3 are new, led by family ticket bundles.', who: 'Matchday PM', since: 'today', act: 'Review the list', drawer: 'top10', done: 'Agreed. Matchday PM will update the features board.' },
+    { id: 'q1', stage: 'plan', kind: 'Ranked list', title: "Agree on this week's top 10 features", why: 'The decision engine ranked them against the season goal. 3 are new, led by family ticket bundles.', who: 'Decision engine', since: 'today', act: 'Review the list', drawer: 'top10', done: 'Agreed. Product ops agent will update the features board.' },
     { id: 'q2', stage: 'validate', kind: 'Approval', title: 'Review ticket transfer before it ships Tuesday', why: '2 of 11 requirements do not match the spec. Marcus is waiting on you.', who: 'Marcus', since: '1 day', act: 'Review the 2 gaps', drawer: 'validate', done: 'Sent back to Marcus with the 2 gaps.' },
-    { id: 'q3', stage: 'discover', kind: 'New theme', title: 'Decide what to do with family ticket bundles', why: 'Requests doubled since September: 18 ideas, 4 support threads, and 2 interviews. Nothing on the roadmap covers it.', who: 'Elle', since: 'today', act: 'Decide', drawer: 'theme', done: 'Epic created: Family ticket bundles.' },
+    { id: 'q3', stage: 'discover', kind: 'New theme', title: 'Decide what to do with family ticket bundles', why: 'Requests doubled since September: 18 ideas, 4 support threads, and 2 interviews. Nothing on the roadmap covers it.', who: 'Decision engine', since: 'today', act: 'Decide', drawer: 'theme', done: 'Epic created: Family ticket bundles.' },
     { id: 'q4', stage: 'deliver', kind: 'Build choice', title: 'Pick a score feed for the live score widget', why: 'The coding agent built both. The current feed is free but 30 seconds behind. The new one is live but needs a contract.', who: 'Coding agent', since: '3 hours', act: 'Compare the options', drawer: 'options', done: 'The coding agent is building with the current feed.' },
     { id: 'q5', stage: 'plan', kind: 'Mention', title: 'Answer Priya: can the kit still launch March 3?', why: 'She is asking in case returns slip a sprint. Elle drafted a yes.', who: 'Priya', since: '2 days', late: true, act: "Review Elle's reply", drawer: 'reply', done: 'Reply sent to Priya.' },
-    { id: 'q6', stage: 'analyze', kind: 'Insight', title: 'Match day check-in dropped 6% after the new sign-in', why: 'Fans leave on the second step. Matchday PM drafted an idea to cut it.', who: 'Matchday PM', since: 'today', act: 'Open the idea', drawer: 'insight', done: 'Idea opened: Shorten match day sign-in.' },
+    { id: 'q6', stage: 'analyze', kind: 'Insight', title: 'Match day check-in dropped 6% after the new sign-in', why: 'Fans leave on the second step. The decision engine drafted an idea to cut it.', who: 'Decision engine', since: 'today', act: 'Open the idea', drawer: 'insight', done: 'Idea opened: Shorten match day sign-in.' },
     { id: 'q7', stage: 'report', kind: 'To-do', title: 'Approve the November board report', why: 'Elle drafted it from the goals and this month\'s numbers. Nina needs it Friday.', who: 'Nina', since: 'due Fri', act: 'Review the draft', drawer: 'report', done: 'Report approved and shared with Nina.' },
   ],
   team: [
     { id: 't1', stage: 'validate', kind: 'Waiting on Priya', title: "Priya's review is holding up renewal reminders", why: 'Built 4 days ago. Engineering cannot ship until she signs off.', who: 'Priya', since: '4 days', late: true, act: 'Nudge Priya', drawer: 'nudge', done: 'Nudged Priya.' },
-    { id: 't2', stage: 'plan', kind: 'Waiting on Sam', title: 'Sam needs to cut 18 points from the Spring release', why: 'Matchday PM suggests moving the 2 features that score lowest against the release goal.', who: 'Sam', since: '2 days', late: true, act: 'Open the release', drawer: 'capacity', done: 'Opened the Spring release.' },
+    { id: 't2', stage: 'plan', kind: 'Waiting on Sam', title: 'Sam needs to cut 18 points from the Spring release', why: 'The decision engine suggests moving the 2 features that score lowest against the release goal.', who: 'Sam', since: '2 days', late: true, act: 'Open the release', drawer: 'capacity', done: 'Opened the Spring release.' },
     { id: 't3', stage: 'discover', kind: 'Waiting on Elena', title: 'Stadium maps has no customer feedback after 5 days', why: 'Elena shared the prototype with 6 customers. None have opened it.', who: 'Elena', since: '5 days', late: true, act: 'Ask Elle to follow up', drawer: 'followup', done: 'Elle will follow up with the 6 customers.' },
     { id: 't4', stage: 'validate', kind: 'Waiting on you', title: 'Marcus is waiting on your ticket transfer review', why: '2 gaps to settle before Tuesday\'s release.', who: 'you', since: '1 day', act: 'Review the 2 gaps', drawer: 'validate', done: 'Sent back to Marcus with the 2 gaps.' },
   ],
 };
 
 const HANDLED = [
-  { stage: 'discover', title: 'Merged 9 duplicate ideas into Mobile ticket wallet', who: 'Matchday PM', when: '8:12am',
+  { stage: 'discover', title: 'Merged 9 duplicate ideas into Mobile ticket wallet', who: 'Product ops agent', when: '8:12am',
     changes: ['9 ideas now point to Mobile ticket wallet', 'Their 41 votes moved with them', 'Each submitter got a note with the new link'],
     why: 'Every one asked for tickets in the phone wallet. Merging duplicates is on its own for this workspace.', undoMsg: 'Undone. The 9 ideas are separate again.' },
   { stage: 'validate', title: 'Approved 3 copy fixes on the shop page', who: 'Validation agent', when: '9:40am',
@@ -504,29 +510,25 @@ const HANDLED = [
   { stage: 'deliver', title: 'Moved 2 release dates to match Jira', who: 'Coding agent', when: '10:05am',
     changes: ['Merch pre-order: Feb 10 to Feb 14', 'Away fan travel info: Feb 21 to Feb 24'],
     why: 'Engineering moved the sprint in Jira. Keeping dates in sync is on its own.', undoMsg: 'Undone. Both dates are back to Feb 10 and Feb 21.' },
-  { stage: 'discover', title: 'Answered 4 portal comments with knowledge base articles', who: 'Matchday PM', when: '11:30am',
+  { stage: 'discover', title: 'Answered 4 portal comments with knowledge base articles', who: 'Product ops agent', when: '11:30am',
     changes: ['Linked "Transfer a ticket" on 2 comments', 'Linked "Find your seat" on 1 comment', 'Linked "Refunds" on 1 comment'],
     why: 'Each question matched a published article word for word.', undoMsg: 'Undone. The 4 replies are removed.' },
-  { stage: 'report', title: 'Refreshed the weekly ticket sales dashboard', who: 'Matchday PM', when: '12:00pm',
+  { stage: 'report', title: 'Refreshed the weekly ticket sales dashboard', who: 'Product ops agent', when: '12:00pm',
     changes: ['Pulled this week\'s sales: 18,240 tickets', 'Updated the season comparison chart'],
     why: 'Dashboard refreshes run every Thursday at noon.', undoMsg: 'Undone. The dashboard shows last week again.' },
   // Discover: 9 more
-  { stage: 'discover', title: 'Tagged 14 new ideas with their persona', who: 'Matchday PM', when: '7:05am', changes: ['14 ideas tagged: 9 season ticket holders, 5 casual fans'], why: 'Persona tags follow the rules in the workspace settings.' },
-  { stage: 'discover', title: 'Linked 6 support threads to the Group tickets epic', who: 'Matchday PM', when: '7:40am', changes: ['6 threads from the help desk now show on Group tickets'], why: 'Each thread names group checkout, which Group tickets covers.' },
-  { stage: 'discover', title: 'Summarized Tuesday\'s fan interview', who: 'Matchday PM', when: '8:30am', changes: ['Added a summary and 4 highlights to the interview record'], why: 'Interview summaries run after every recording is uploaded.' },
-  { stage: 'discover', title: 'Merged 3 duplicate ideas into Stadium maps', who: 'Matchday PM', when: '9:15am', changes: ['3 ideas point to Stadium maps', '12 votes moved with them'], why: 'All three asked for a seat map in the app.', undoMsg: 'Undone. The 3 ideas are separate again.' },
-  { stage: 'discover', title: 'Set 5 ideas to "Needs more info"', who: 'Matchday PM', when: '10:20am', changes: ['5 ideas had no description; each submitter got a question'], why: 'Ideas under 10 words get a follow-up question.' },
-  { stage: 'discover', title: 'Scored 8 new ideas against the season goal', who: 'Matchday PM', when: '10:50am', changes: ['8 ideas now have a goal fit score from 31 to 74'], why: 'Scoring runs when an idea gets its first vote.' },
-  { stage: 'discover', title: 'Added 2 competitor notes from release news', who: 'Matchday PM', when: '12:40pm', changes: ['2 notes added to the competitor record for ticketing apps'], why: 'Competitor news is collected daily.' },
-  { stage: 'discover', title: 'Closed 4 ideas that shipped in Mobile ticket wallet', who: 'Matchday PM', when: '1:05pm', changes: ['4 ideas set to Shipped', 'Each submitter got a note'], why: 'The ideas link to a feature that shipped.', undoMsg: 'Undone. The 4 ideas are open again.' },
-  { stage: 'discover', title: 'Grouped 18 ideas into a new theme: family ticket bundles', who: 'Matchday PM', when: '1:20pm', changes: ['New theme with 18 ideas', 'Sent to you as a decision'], why: 'Themes form when 10 or more ideas share a request.' },
+  { stage: 'discover', title: 'Tagged 14 new ideas with their persona', who: 'Product ops agent', when: '7:05am', changes: ['14 ideas tagged: 9 season ticket holders, 5 casual fans'], why: 'Persona tags follow the rules in the workspace settings.' },
+  { stage: 'discover', title: 'Linked 6 support threads to the Group tickets epic', who: 'Product ops agent', when: '7:40am', changes: ['6 threads from the help desk now show on Group tickets'], why: 'Each thread names group checkout, which Group tickets covers.' },
+  { stage: 'discover', title: 'Summarized Tuesday\'s fan interview', who: 'Product ops agent', when: '8:30am', changes: ['Added a summary and 4 highlights to the interview record'], why: 'Interview summaries run after every recording is uploaded.' },
+  { stage: 'discover', title: 'Merged 3 duplicate ideas into Stadium maps', who: 'Product ops agent', when: '9:15am', changes: ['3 ideas point to Stadium maps', '12 votes moved with them'], why: 'All three asked for a seat map in the app.', undoMsg: 'Undone. The 3 ideas are separate again.' },
+  { stage: 'discover', title: 'Set 5 ideas to "Needs more info"', who: 'Product ops agent', when: '10:20am', changes: ['5 ideas had no description; each submitter got a question'], why: 'Ideas under 10 words get a follow-up question.' },
+  { stage: 'discover', title: 'Added 2 competitor notes from release news', who: 'Product ops agent', when: '12:40pm', changes: ['2 notes added to the competitor record for ticketing apps'], why: 'Competitor news is collected daily.' },
+  { stage: 'discover', title: 'Closed 4 ideas that shipped in Mobile ticket wallet', who: 'Product ops agent', when: '1:05pm', changes: ['4 ideas set to Shipped', 'Each submitter got a note'], why: 'The ideas link to a feature that shipped.', undoMsg: 'Undone. The 4 ideas are open again.' },
   // Plan: 6
-  { stage: 'plan', title: 'Reranked the features board after 3 new ideas linked', who: 'Matchday PM', when: '7:30am', changes: ['Family ticket bundles moved from 9th to 3rd'], why: 'Ranking refreshes when linked demand changes by more than 10%.', undoMsg: 'Undone. The board order is back to yesterday.' },
-  { stage: 'plan', title: 'Filled in estimates on 4 new features', who: 'Matchday PM', when: '8:45am', changes: ['4 features got initial estimates from similar past work'], why: 'Initial estimates fill in for features with none.' },
-  { stage: 'plan', title: 'Drafted requirements for Guest ticket transfer limits', who: 'Matchday PM', when: '9:50am', changes: ['3 draft requirements added, marked as drafts'], why: 'Drafting requirements is set to on its own; you review before development.' },
-  { stage: 'plan', title: 'Updated the Spring roadmap after the Jira sync', who: 'Matchday PM', when: '10:10am', changes: ['2 bars moved on the Spring roadmap'], why: 'Roadmaps follow release dates automatically.' },
-  { stage: 'plan', title: 'Linked 2 features to the season goal', who: 'Matchday PM', when: '11:10am', changes: ['Merch pre-order and Live score widget now support the goal'], why: 'Both features name revenue per fan in their description.' },
-  { stage: 'plan', title: 'Flagged that the Spring release is over capacity', who: 'Matchday PM', when: '11:45am', changes: ['Sent Sam a decision: 18 points over'], why: 'Capacity checks run when estimates change.' },
+  { stage: 'plan', title: 'Filled in estimates on 4 new features', who: 'Product ops agent', when: '8:45am', changes: ['4 features got initial estimates from similar past work'], why: 'Initial estimates fill in for features with none.' },
+  { stage: 'plan', title: 'Drafted requirements for Guest ticket transfer limits', who: 'Product ops agent', when: '9:50am', changes: ['3 draft requirements added, marked as drafts'], why: 'Drafting requirements is set to on its own; you review before development.' },
+  { stage: 'plan', title: 'Updated the Spring roadmap after the Jira sync', who: 'Product ops agent', when: '10:10am', changes: ['2 bars moved on the Spring roadmap'], why: 'Roadmaps follow release dates automatically.' },
+  { stage: 'plan', title: 'Linked 2 features to the season goal', who: 'Product ops agent', when: '11:10am', changes: ['Merch pre-order and Live score widget now support the goal'], why: 'Both features name revenue per fan in their description.' },
   // Validate: 8 more
   { stage: 'validate', title: 'Passed the seat filter fix on staging', who: 'Validation agent', when: '7:20am', changes: ['All 4 requirements match the spec'], why: 'Builds under 50 changed lines that match every requirement pass on their own.' },
   { stage: 'validate', title: 'Passed the new loading spinner', who: 'Validation agent', when: '8:05am', changes: ['Matches the approved prototype'], why: 'Visual changes that match the prototype pass on their own.' },
@@ -541,14 +543,13 @@ const HANDLED = [
   { stage: 'deliver', title: 'Fixed a failing test in the checkout suite', who: 'Coding agent', when: '9:30am', changes: ['1 test updated to match the new receipt layout'], why: 'Test fixes that do not change behavior are on its own.' },
   { stage: 'deliver', title: 'Built two options for the live score widget', who: 'Coding agent', when: '10:40am', changes: ['2 branches ready', 'Sent you the choice'], why: 'A new vendor contract always goes to a person.' },
   // Analyze: 5
-  { stage: 'analyze', title: 'Flagged a 6% drop in match day check-in', who: 'Matchday PM', when: '7:50am', changes: ['Sent you an insight with a drafted idea'], why: 'Drops over 5% in check-in or checkout go to the feature owner.' },
-  { stage: 'analyze', title: 'Measured adoption of Mobile ticket wallet', who: 'Matchday PM', when: '8:20am', changes: ['41% of fans used the wallet in its first week'], why: 'Adoption is measured 7 days after a launch.' },
-  { stage: 'analyze', title: 'Compared renewals to last season', who: 'Matchday PM', when: '9:05am', changes: ['82% renewed, up from 76%'], why: 'Renewal tracking runs weekly in November.' },
-  { stage: 'analyze', title: 'Linked usage data to 3 ideas', who: 'Matchday PM', when: '10:00am', changes: ['3 ideas now show how often fans hit the screen they mention'], why: 'Usage links run when an idea names a screen.' },
-  { stage: 'analyze', title: 'Updated the goal progress for revenue per fan', who: 'Matchday PM', when: '11:50am', changes: ['Progress moved from 4.8% to 5.2%'], why: 'Goal progress updates daily from sales data.' },
+  { stage: 'analyze', title: 'Measured adoption of Mobile ticket wallet', who: 'Product ops agent', when: '8:20am', changes: ['41% of fans used the wallet in its first week'], why: 'Adoption is measured 7 days after a launch.' },
+  { stage: 'analyze', title: 'Compared renewals to last season', who: 'Product ops agent', when: '9:05am', changes: ['82% renewed, up from 76%'], why: 'Renewal tracking runs weekly in November.' },
+  { stage: 'analyze', title: 'Linked usage data to 3 ideas', who: 'Product ops agent', when: '10:00am', changes: ['3 ideas now show how often fans hit the screen they mention'], why: 'Usage links run when an idea names a screen.' },
+  { stage: 'analyze', title: 'Updated the goal progress for revenue per fan', who: 'Product ops agent', when: '11:50am', changes: ['Progress moved from 4.8% to 5.2%'], why: 'Goal progress updates daily from sales data.' },
   // Report: 2 more
-  { stage: 'report', title: 'Drafted the November board report', who: 'Matchday PM', when: '8:00am', changes: ['Draft ready', 'Sent you a to-do to approve it'], why: 'Board reports always go to a person before they are shared.' },
-  { stage: 'report', title: 'Posted the weekly release notes draft', who: 'Matchday PM', when: '10:15am', changes: ['Draft added to the Spring release'], why: 'Release note drafts are on its own; publishing is not.' },
+  { stage: 'report', title: 'Drafted the November board report', who: 'Product ops agent', when: '8:00am', changes: ['Draft ready', 'Sent you a to-do to approve it'], why: 'Board reports always go to a person before they are shared.' },
+  { stage: 'report', title: 'Posted the weekly release notes draft', who: 'Product ops agent', when: '10:15am', changes: ['Draft added to the Spring release'], why: 'Release note drafts are on its own; publishing is not.' },
 ];
 const mins = w => { const [h, m] = w.replace(/am|pm/, '').split(':').map(Number); return (h % 12 + (w.endsWith('pm') ? 12 : 0)) * 60 + m; };
 HANDLED.sort((a, b) => mins(b.when) - mins(a.when));
@@ -607,7 +608,7 @@ const MEET = {
   spring: { agenda: [{ t: 'Capacity: 18 points over' }],
        suggest: [{ rel: 't2' }],
        notes: [{ t: 'Confirm the Jira dates for both releases', o: 'Sam', since: 'Nov 6', done: false }],
-       prev: [{ date: 'Nov 6', ago: '1 week ago', discussed: ['The release was 18 points over capacity', 'Matchday PM suggested 2 features to move'], notes: ['Confirm the Jira dates for both releases'], summary: 'The Spring release is 18 points over capacity. Matchday PM suggested moving 2 features, and Sam will confirm the Jira dates first.' }] },
+       prev: [{ date: 'Nov 6', ago: '1 week ago', discussed: ['The release was 18 points over capacity', 'The decision engine suggested 2 features to move'], notes: ['Confirm the Jira dates for both releases'], summary: 'The Spring release is 18 points over capacity. Product ops agent suggested moving 2 features, and Sam will confirm the Jira dates first.' }] },
 };
 const mstate = {};
 function stateFor(i) {
@@ -647,7 +648,7 @@ function renderStages() {
     return `<button class="stage ${cls}" data-stage="${s.id}" title="${filter === s.id ? 'Show every stage' : 'Show only ' + s.name}">
       <div class="name">${s.name}</div>
       <div class="num ${n ? '' : 'zero'}"><b>${n}</b><span>${scope === 'mine' ? 'for you' : 'waiting'}</span></div>
-      <div class="ai">${doneIn(s.id)} done by AI</div></button>`;
+      <div class="ai">${doneIn(s.id)} done by agents</div></button>`;
   }).join('');
   document.querySelectorAll('button.stage').forEach(el => el.onclick = () => {
     filter = filter === el.dataset.stage ? null : el.dataset.stage; render();
@@ -672,7 +673,7 @@ function renderQueue() {
     </div>`).join('');
   if (!items.length) html = all.length
     ? `<div class="empty">${searchText ? `Nothing matches "${searchText}".` : `Nothing waiting in ${NAME[filter]}.`}</div>`
-    : `<div class="empty">${face('Matchday PM', 's24')}<div><b>Nothing needs you right now.</b>Matchday PM will bring the next decision here.</div></div>`;
+    : `<div class="empty">${face('Decision engine', 's24')}<div><b>Nothing needs you right now.</b>The Aha! decision engine will bring the next decision here.</div></div>`;
   document.getElementById('queue').innerHTML = html;
   document.querySelectorAll('#queue .row-item').forEach(el => el.onclick = () => openDrawer(el.dataset.id, el));
 }
@@ -845,7 +846,7 @@ function needText(sel, msg) {
 }
 
 function drawerHTML(q) {
-  const by = q.who === 'you' ? 'Waiting on you' : `From <b>${displayName(q.who)}</b>`;
+  const by = q.who === 'you' ? 'Waiting on you' : q.who === 'Decision engine' ? 'Suggested by the <b>Aha! decision engine</b>' : `From <b>${displayName(q.who)}</b>`;
   const head = `<span class="stage-pill sp-${BAND[q.stage]}">${NAME[q.stage]}</span><h2>${q.title}</h2>
     <div class="byline">${face(q.who, 's24')}<span>${by} &middot; ${q.kind.toLowerCase()} &middot; ${q.since}</span></div>`;
 
@@ -854,7 +855,7 @@ function drawerHTML(q) {
       Ranked against the season goal, "Grow match day revenue per fan 8%." Family ticket bundles is new: 18 ideas and 2 interviews this month. Two features dropped off because they no longer support a goal.</div>
       <h4>Suggested for this week <span class="h4-note">Uncheck any you disagree with</span></h4><div class="check-list" id="top10">${TOP10.map((f, i) => `<label class="ci"><input type="checkbox" checked><span class="rank">${i + 1}</span><span>${f[0]}${f[1] ? '<span class="pill is-purple new">New</span>' : ''}</span><span class="score-pill">${f[2]}</span></label>`).join('')}</div>
       <div class="what-next" id="top10-next"></div>`,
-    foot: `<button class="btn btn-primary" data-act="agree">Agree</button><button class="btn" data-act="rerun">Rerun</button><input class="input" id="refine" placeholder="Refine: tell Matchday PM what to change"><button class="btn btn-ai" data-act="refine">Refine</button>`,
+    foot: `<button class="btn btn-primary" data-act="agree">Agree</button><button class="btn" data-act="rerun">Rerun</button><input class="input" id="refine" placeholder="Refine: tell the decision engine what to change"><button class="btn btn-ai" data-act="refine">Refine</button>`,
     wire() {
       const upd = () => {
         const off = $$d('#top10 input').filter(c => !c.checked).length;
@@ -867,8 +868,8 @@ function drawerHTML(q) {
     },
     act: {
       agree() { const n = $$d('#top10 input').filter(c => c.checked).length; return `Agreed on ${n}. They are at the top of the features board.`; },
-      rerun: () => 'Matchday PM is rerunning the ranking. The new list lands here in a few minutes.',
-      refine() { if (!needText('#refine', 'Say what to change first')) return false; return `Matchday PM is reranking: "${val('#refine')}"`; },
+      rerun: () => 'The decision engine is rerunning the ranking. The new list lands here in a few minutes.',
+      refine() { if (!needText('#refine', 'Say what to change first')) return false; return `The decision engine is reranking: "${val('#refine')}"`; },
     },
   };
 
@@ -947,14 +948,14 @@ function drawerHTML(q) {
         <div class="f-row is-bad"><span>Sign in</span><div class="bar"><i style="width:71%"></i><em style="left:77%"></em></div><b>71% <small>was 77%</small></b></div>
         <div class="f-row"><span>Show ticket</span><div class="bar"><i style="width:64%"></i><em style="left:70%"></em></div><b>64% <small>was 70%</small></b></div>
       </div>
-      <h4>Idea Matchday PM drafted <span class="h4-note">Edit before you create it</span></h4>
+      <h4>Idea the decision engine drafted <span class="h4-note">Edit before you create it</span></h4>
       <input class="input" id="idea-title" value="Keep fans signed in on match day">
       <div class="ai-result" style="margin-top:8px">${elleHead('Why')}The new sign-in asks for a code every visit. Fans who stay signed in skip that step. Similar apps keep match day sessions for 24 hours.</div>
       <div class="what-next">Creates the idea in Matchday app and links it to the check-in analytics.</div>`,
     foot: `<button class="btn btn-primary" data-act="create">Create the idea</button><button class="btn" data-act="dismiss">Not now</button>`,
     act: {
       create() { if (!needText('#idea-title', 'Give the idea a name')) return false; return `Idea created: ${val('#idea-title')}.`; },
-      dismiss: () => 'Dismissed. Matchday PM will flag it again if the drop grows.',
+      dismiss: () => 'Dismissed. The decision engine will flag it again if the drop grows.',
     },
   };
 
@@ -1062,6 +1063,12 @@ function showDrawer(kind, body, foot, el) {
 function openDrawer(id, el) {
   const q = [...QUEUE.mine, ...QUEUE.team].find(x => x.id === id);
   const d = drawerHTML(q);
+  const helper = { deliver: 'Coding agent', validate: 'Validation agent' }[q.stage] || 'Product ops agent';
+  d.act.handoff = () => {
+    HANDLED.unshift({ stage: q.stage, title: `Took over: ${q.title}`, who: helper, when: 'Just now', changes: [`You handed this to ${helper}`, 'It will log each change here as it works'], why: 'You handed it over from your decisions.', undoMsg: 'Undone. It is back in your decisions.' });
+    return `Handed to ${helper}. It shows in Done by agents.`;
+  };
+  d.foot += `<span class="spacer"></span><button class="btn btn-ghost" data-act="handoff">Hand to an agent</button>`;
   showDrawer(q.kind, d.body, d.foot, el);
   if (d.wire) d.wire();
   $$d('[data-act]').forEach(b => b.onclick = () => {
@@ -1071,7 +1078,7 @@ function openDrawer(id, el) {
     el.classList.add('is-leaving');
     setTimeout(() => {
       cleared.add(id); render(); renderMeetingPane();
-      toast(msg, () => { cleared.delete(id); if (b.dataset.act === 'take' && q.drawer === 'nudge') QUEUE.mine = QUEUE.mine.filter(x => x.id !== 'q8'); render(); renderMeetingPane(); });
+      toast(msg, () => { if (b.dataset.act === 'handoff') HANDLED.shift(); cleared.delete(id); if (b.dataset.act === 'take' && q.drawer === 'nudge') QUEUE.mine = QUEUE.mine.filter(x => x.id !== 'q8'); render(); renderMeetingPane(); });
     }, 250);
   });
 }
@@ -1080,7 +1087,7 @@ function openAudit(i, el) {
   showDrawer('Done by an agent', `<span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span><h2>${h.title}</h2>
     <div class="byline">${face(h.who, 's24')}<span>${h.who} &middot; today at ${h.when}${h.undone ? ' &middot; <b class="gap">Undone</b>' : ''}</span></div>
     <h4>What changed</h4><div class="check-list">${(h.changes || [h.title]).map(c => `<div class="ci"><span class="ok">&#10003;</span><span></span><span>${c}</span><span></span></div>`).join('')}</div>
-    <h4>Why it did not ask you</h4><div class="ai-result">${elleHead(h.who)}${h.why}</div>`,
+    <h4>Why it did not ask you</h4><div class="ai-result"><div class="ai-head">${face(h.who, 's16')}${h.who}</div>${h.why}</div>`,
     h.undone ? `<span class="muted-s">This was undone.</span>` : `<button class="btn" data-audit="undo">Undo</button><button class="btn btn-ghost" data-audit="keep">Looks right</button>`, el);
   $$d('[data-audit]').forEach(b => b.onclick = () => {
     closeDrawer();
@@ -1093,7 +1100,7 @@ function openAllActivity() {
   const live = HANDLED.filter(h => !h.undone);
   const by = a => live.filter(h => h.who === a).length;
   showDrawer('Done by agents', `<h2>${live.length} actions today</h2><div class="byline">Nothing needed you. Open any one to see what changed or undo it.</div>
-    <h4>By agent</h4><div class="facts"><div><span>Matchday PM</span>${by('Matchday PM')} actions</div><div><span>Validation agent</span>${by('Validation agent')} actions</div><div><span>Coding agent</span>${by('Coding agent')} actions</div></div>
+    <h4>By agent</h4><div class="facts"><div><span>Product ops agent</span>${by('Product ops agent')} actions</div><div><span>Validation agent</span>${by('Validation agent')} actions</div><div><span>Coding agent</span>${by('Coding agent')} actions</div></div>
     <h4>Newest first</h4><div class="rows">${HANDLED.map((h, i) => `<div class="row-item ${h.undone ? 'is-undone' : ''}" data-all="${i}"><div><span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span></div><div><div class="title">${h.title}</div></div><div class="who">${face(h.who, 's16')}<span>${h.when}</span></div></div>`).join('')}</div>`,
     `<button class="btn" data-toast="Exported ${live.length} actions to CSV.">Export</button>`);
   $$d('[data-all]').forEach(r => r.onclick = () => openAudit(+r.dataset.all, r));
@@ -1110,11 +1117,11 @@ const TODO_LIST = [
   { t: 'Approve the November board report', due: 'Fri', rel: 'q7', from: 'Nina' },
   { t: 'Review notes from Ticket transfer design review', due: 'Today', from: 'Meeting' },
   { t: 'Intro Elena to the supporters club lead', due: 'Mon', from: '1:1 with Elena' },
-  { t: 'Read the stadium maps interview summary', due: 'Next week', from: 'Matchday PM' },
+  { t: 'Read the stadium maps interview summary', due: 'Next week', from: 'Product ops agent' },
 ];
 let notifMode = 'matter';
 const NOTIF_FYI = [
-  { who: 'Matchday PM', text: 'Matchday PM merged 9 duplicate ideas into Mobile ticket wallet', when: '8:12am', handled: true },
+  { who: 'Product ops agent', text: 'Product ops agent merged 9 duplicate ideas into Mobile ticket wallet', when: '8:12am', handled: true },
   { who: 'Validation agent', text: 'Validation agent passed 3 copy fixes on the shop page', when: '9:40am', handled: true },
   { who: 'Marcus', text: 'Marcus commented on Live score widget', when: 'Yesterday', handled: false },
   { who: 'Coding agent', text: 'Coding agent moved 2 release dates to match Jira', when: '10:05am', handled: true },
@@ -1185,7 +1192,7 @@ document.addEventListener('mousedown', e => {
 
 /* Left nav, header, and top nav. Everything a reviewer can click does something. */
 const AGENTS = {
-  'Matchday PM': { role: 'AI PM for Matchday app, set up by you', job: 'Keeps the backlog ranked against the season goal, turns feedback into themes, and drafts the monthly report. Asks before it changes a roadmap.', level: 1, rate: 82 },
+  'Product ops agent': { role: 'Handles the busy work in Matchday app', job: 'Merges duplicate ideas, tags personas, links feedback to epics, answers portal comments, refreshes dashboards, and drafts release notes. It never changes priorities. The Aha! decision engine suggests those, and you decide.', level: 1, rate: 82 },
   'Validation agent': { role: 'Checks builds against the spec and the approved prototype', job: 'Reviews every build before release. Passes small changes that match the spec and sends anything bigger to a person.', level: 2, rate: 94 },
   'Coding agent': { role: 'Builds small fixes and options for engineering', job: 'Opens pull requests for small fixes, keeps release dates in sync with Jira, and builds options when a choice needs a person.', level: 0, rate: 71 },
 };
@@ -1195,14 +1202,14 @@ function setNavActive(key) { document.querySelectorAll('.nav-sidebar__item').for
 
 /* Agent drawer: Chat with the agent, or change its Settings. */
 const AGENT_CHAT = {
-  'Matchday PM': {
-    hello: 'Morning. I ranked this week\'s top 10 and found one new theme: family ticket bundles. What do you want to dig into?',
+  'Product ops agent': {
+    hello: 'Morning. I merged 12 duplicate ideas, tagged 14 new ones, and answered 4 portal comments. What do you want to hand me?',
     ask: {
-      'Why is family ticket bundles ranked 3rd?': { text: 'Requests doubled since September: 18 ideas, 4 support threads, and 2 interviews. 5 of the ideas come from season ticket holders up for renewal, and it supports the revenue per fan goal.', rel: 'q3', relLabel: 'Open the theme' },
-      'What did you change on your own today?': { text: () => `${HANDLED.filter(h => h.who === 'Matchday PM' && !h.undone).length} things. The biggest: I merged 9 duplicate ideas into Mobile ticket wallet and reranked the features board. Each one is in Done by agents if you want to undo it.` },
-      'Draft a one-pager on family ticket bundles': { text: 'Drafted. It covers the demand, the 3 fan segments asking for it, and a first cut you could ship in the Summer release. I added it to your agenda for season planning with Nina.' },
+      'What did you change on your own today?': { text: () => `${HANDLED.filter(h => h.who === 'Product ops agent' && !h.undone).length} things, all busy work. The biggest: I merged 9 duplicate ideas into Mobile ticket wallet and moved their 41 votes. Each one is in Done by agents if you want to undo it.` },
+      'Tidy up the stadium maps ideas': { text: 'Done. I merged 3 duplicates, tagged each idea with its persona, and linked 2 support threads. Nothing about priority changed.' },
+      'Draft the Spring release notes': { text: 'Drafted. They cover the 5 features in the Spring release and are waiting on the release for you to review.' },
     },
-    fallback: t => `On it. I\'ll look into "${t}" and post what I find here.`,
+    fallback: t => `On it. I will take care of "${t}" and log every change in Done by agents.`,
   },
   'Validation agent': {
     hello: 'I checked 12 builds today and passed 11. Ticket transfer has 2 gaps waiting on you.',
@@ -1289,7 +1296,7 @@ const NOTIFS = [
   { who: 'Nina', text: 'Nina assigned you a to-do: Approve the November board report', when: 'Today', rel: 'q7' },
   { who: 'Elena', text: 'Elena shared the stadium maps prototype with 6 customers', when: '5 days ago', rel: 't3' },
   { who: 'Sam', text: 'Sam moved the Spring release date to March 3', when: '3 days ago' },
-  { who: 'Matchday PM', text: 'Matchday PM finished this week\'s ranking', when: 'Today', rel: 'q1' },
+  { who: 'Decision engine', text: 'The decision engine finished this week\'s ranking', when: 'Today', rel: 'q1' },
 ];
 
 
