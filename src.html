@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My work control plane</title>
+<meta name="color-scheme" content="light only">
+<link rel="stylesheet" href="aha.css">
+<style>
+  :root { color-scheme: light only; --drawer-width: 650px; --line: #e9e9e9; --ai: #662db5; --ai-bg: #f5eeff; }
+  html, body { height: 100%; margin: 0; }
+  body { overflow: hidden; }
+  .app { height: 100vh; min-height: 0; background: var(--aha-color-background-primary); }
+  .top-nav .nav-icons { display: inline-flex; gap: var(--spacer-1); }
+  .top-nav .nav-icons .top-nav-item { padding: 4px 10px; }
+
+  /* People and agents. People get photos; agents get a purple tile so AI never passes for a person. */
+  .face { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 20px; height: 20px; border-radius: 50%; overflow: hidden; background: #e1e1e1; color: #555; font-size: 9px; font-weight: 500; border: 1px solid #fff; }
+  .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .face.s16 { width: 16px; height: 16px; font-size: 8px; }
+  .face.s24 { width: 24px; height: 24px; font-size: 10px; }
+  .face.s32 { width: 32px; height: 32px; font-size: 12px; }
+  .face.agent { border-radius: 4px; background: var(--ai-bg); color: var(--ai); border-color: transparent; font-weight: 600; }
+  .faces { display: inline-flex; }
+  .faces .face + .face { margin-left: -6px; }
+
+  /* Page header band: 65px, single row (nav sidebar archetype). */
+  .mw-header { display: flex; align-items: center; gap: var(--spacer-3); height: 65px; padding: 0 16px; border-bottom: 1px solid var(--aha-color-border-primary); flex: none; }
+  .mw-header .spacer { flex: 1; }
+  .mw-body { display: flex; flex: 1; min-height: 0; }
+  .nav-sidebar { border-right: 1px solid var(--aha-color-border-primary); }
+  .nav-sidebar__item .count { margin-left: auto; color: var(--aha-color-text-tertiary); font-size: 12px; }
+  .nav-sidebar__item .badge { margin-left: 4px; }
+  .nav-sidebar__item .sub { color: var(--aha-color-text-tertiary); font-size: 11px; margin-left: auto; }
+
+  .pane { flex: 1; min-width: 0; overflow-y: auto; padding: 32px 40px 80px; }
+  .page-tabs { margin: -8px 0 20px; align-items: center; }
+  .page-tabs .tab { cursor: pointer; display: inline-flex; align-items: center; font-size: 14px; }
+  .page-tabs .spacer { flex: 1; }
+  .scope-wrap { display: inline-flex; align-items: center; gap: 8px; }
+  .scope-label { font-size: 12px; color: var(--aha-color-text-tertiary); }
+  .tab-count { display: inline-block; min-width: 16px; padding: 0 4px; margin-left: 4px; border-radius: 8px; background: #dbefff; color: #0073cf; font-size: 10px; font-weight: 600; line-height: 15px; text-align: center; }
+  .meet-view { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 0; border: 1px solid var(--aha-color-border-primary); border-radius: 4px; min-height: 560px; }
+  .meet-list { border-right: 1px solid var(--aha-color-border-primary); padding: 8px 12px 16px; }
+  .meet-row.is-selected { background: #ebf6ff; box-shadow: inset 3px 0 0 #0073cf; opacity: 1; }
+  .meet-pane { padding: 24px 32px 32px; min-width: 0; }
+  .meet-pane h2 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .meet-pane .when { color: var(--aha-color-text-secondary); font-size: 12px; }
+  .meet-pane .spacer { flex: 1; }
+  .meet-pane h4 { font-size: 11px; font-weight: 600; margin: 24px 0 8px; text-transform: uppercase; letter-spacing: .05em; color: var(--aha-color-text-secondary); }
+  .attendee { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .attendee b { font-weight: 500; display: block; }
+  .attendee span span { color: var(--aha-color-text-tertiary); font-size: 11px; }
+  .prep dt { color: var(--aha-color-text-tertiary); font-size: 12px; padding-top: 1px; }
+  .prep dd { margin: 0; }
+  .related .row-item { grid-template-columns: 78px minmax(0, 1fr) 24px; }
+  .meet-view.is-full { grid-template-columns: minmax(0, 1fr); }
+  .meet-view.is-full .meet-list { display: none; }
+  .meet-view.is-full .meet-pane > * { max-width: 760px; }
+  .mp-bar { display: flex; align-items: center; gap: 8px; margin: -12px -16px 8px 0; }
+  .mp-bar .spacer { flex: 1; }
+  .menu-wrap { position: relative; }
+  .mp-menu { display: none; position: absolute; right: 0; top: 32px; min-width: 180px; background: #fff; border: 1px solid var(--aha-color-border-primary); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: 4px 0; z-index: 20; }
+  .mp-menu.is-open { display: block; }
+  .mp-menu a { display: block; padding: 6px 12px; font-size: 12px; color: var(--aha-color-text); cursor: pointer; }
+  .mp-menu a:hover { background: #f1f1f1; text-decoration: none; }
+  .mp-title { font-size: 20px; font-weight: 600; margin: 0 0 2px; }
+  .people-line-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 2px 4px 2px 0; border: 0; background: none; font: inherit; font-size: 12px; color: var(--aha-color-text-secondary); cursor: pointer; }
+  .people-line-btn:hover { color: var(--aha-color-text); }
+  .people-line-btn .caret { font-size: 9px; transition: transform .15s; }
+  .people-line-btn.is-open .caret { transform: rotate(180deg); }
+  .person-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 8px; }
+  .person-card { display: flex; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px; line-height: 1.4; }
+  .person-card b { display: block; font-weight: 500; }
+  .person-card span { color: var(--aha-color-text-secondary); }
+  .mp-tabs { margin: 16px 0 4px; }
+  .mp-tabs .tab { cursor: pointer; }
+  .mp-sec-head { display: flex; align-items: center; gap: 8px; margin-top: 18px; }
+  .mp-sec-head h4 { margin: 0; }
+  .mp-sec-head .spacer { flex: 1; }
+  .agenda, .notes { margin-top: 8px; border-top: 1px solid var(--line); }
+  .ag-row, .note-row { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 4px 6px; border-bottom: 1px solid var(--line); font-size: 13px; cursor: pointer; }
+  .ag-row:hover, .note-row:hover { background: #fafafa; }
+  .ag-n { width: 14px; color: var(--aha-color-text-tertiary); font-size: 12px; text-align: right; }
+  .ag-t { flex: 1; min-width: 0; }
+  .ag-count { font-size: 11px; color: #9c1f0e; margin-left: 4px; }
+  .ag-why { display: block; font-size: 11px; color: var(--aha-color-text-tertiary); margin-top: 1px; }
+  .ag-row.is-done .ag-t, .note-row.is-done .nt { color: var(--aha-color-text-tertiary); text-decoration: line-through; }
+  .ag-open { font-size: 12px; }
+  .ag-x { border: 0; background: none; color: var(--aha-color-text-tertiary); cursor: pointer; font-size: 15px; visibility: hidden; }
+  .ag-row:hover .ag-x { visibility: visible; }
+  .ag-row.is-suggest { border: 1px dashed #c9a6f5; border-radius: 4px; margin-top: 6px; background: #fcf9ff; cursor: default; padding: 6px 8px; }
+  .ag-row.is-suggest a { font-size: 12px; cursor: pointer; }
+  .muted-link { color: var(--aha-color-text-tertiary) !important; }
+  .add-line { width: 100%; box-sizing: border-box; margin-top: 8px; border-style: dashed; }
+  .add-note { display: flex; gap: 8px; }
+  .owner-pick { width: 110px; margin-top: 8px; flex: none; }
+  .note-row .nt { flex: 1; min-width: 0; }
+  .note-row .owner { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 1px 6px 1px 2px; border-radius: 9px; background: #f1f1f1; color: #333; }
+  .note-row .since { font-size: 11px; color: var(--aha-color-text-tertiary); width: 44px; text-align: right; }
+  .prev-list { margin-top: 12px; border-top: 1px solid var(--line); }
+  .prev { border-bottom: 1px solid var(--line); }
+  .prev-head { display: grid; grid-template-columns: 56px 90px minmax(0, 1fr) auto; gap: 10px; width: 100%; padding: 10px 6px; border: 0; background: none; font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+  .prev-head:hover { background: #fafafa; }
+  .prev .pd { font-weight: 600; } .prev .pa, .prev .pc { color: var(--aha-color-text-tertiary); }
+  .prev .pf { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .prev.is-empty .pf { color: var(--aha-color-text-tertiary); font-style: italic; }
+  .prev.is-open .prev-head { background: #fafafa; }
+  .prev-body { padding: 2px 6px 14px 72px; background: #fafafa; font-size: 13px; line-height: 1.5; }
+  .prev-body ul { margin: 2px 0 8px; padding-left: 16px; }
+  .prev-sum { display: flex; gap: 8px; max-width: 640px; }
+  .prev-sum p { margin: 0; font-size: 13px; line-height: 1.55; }
+  .note-link { display: inline-block; margin-top: 2px; font-size: 12px; cursor: pointer; }
+  .sum-by { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #662db5; margin: 4px 0 2px; }
+  .pb-h { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--aha-color-text-secondary); margin-top: 6px; }
+  .meet-empty { color: var(--aha-color-text-secondary); font-size: 12px; max-width: 520px; }
+  .pane-inner { max-width: 1440px; }
+  .pane-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+  .pane-top h2 { font-size: 28px; font-weight: 600; margin: 0; }
+  .pane-top .date { color: var(--aha-color-text-secondary); font-size: 14px; }
+  .pane-top .spacer { flex: 1; }
+
+  /* Lifecycle row, after the AI product development lifecycle. It doubles as the page filter. */
+  .phases { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0 8px; margin-bottom: 6px; }
+  .phase-band { height: 18px; border-radius: 9px; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
+  .phase-band.aim { grid-column: 1 / span 4; background: #ebf6ff; color: #0073cf; }
+  .phase-band.build { grid-column: 5; background: #fffcee; color: #8a7505; }
+  .phase-band.check { grid-column: 6 / span 2; background: #f0fbf4; color: #2f7d4a; }
+  .stages { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-bottom: 32px; }
+  .stage { border: 1px solid var(--aha-color-border-primary); border-top-width: 3px; border-radius: 4px; padding: 7px 10px 9px; cursor: pointer; background: #fff; text-align: left; font: inherit; color: inherit; transition: background .12s, border-color .12s; }
+  .stage.aim { border-top-color: #8fc3ef; } .stage.build { border-top-color: #f2cf63; } .stage.check { border-top-color: #7fdcae; }
+  .stage:hover { background: #fafafa; }
+  .stage:focus-visible { outline: 2px solid var(--aha-color-text-link); outline-offset: 1px; }
+  .stage.is-selected { box-shadow: 0 0 0 2px var(--aha-color-text-link); }
+  .stage.is-dimmed { opacity: .5; }
+  .stage.is-input { cursor: default; background: #fafafa; }
+  .stage .name { font-size: 12px; font-weight: 600; }
+  .stage .num { display: flex; align-items: baseline; gap: 4px; margin-top: 4px; }
+  .stage .num b { font-size: 20px; font-weight: 500; line-height: 1.1; }
+  .stage .num span { font-size: 11px; color: var(--aha-color-text-secondary); }
+  .stage .num.zero b { color: var(--aha-color-text-tertiary); }
+  .stage .ai { font-size: 11px; color: var(--ai); margin-top: 2px; }
+  .stage .input-note { font-size: 11px; color: var(--aha-color-text-tertiary); margin-top: 6px; line-height: 1.35; }
+
+
+  .cols { display: block; }
+  .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .sec-head h3 { font-size: 16px; font-weight: 600; margin: 0; }
+  .sec-head .meta { color: var(--aha-color-text-secondary); font-size: 12px; }
+  .sec-head .spacer { flex: 1; }
+  .sec-head a { font-size: 12px; cursor: pointer; }
+  .filter-tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 4px 1px 8px; border-radius: 4px; background: #ebf6ff; color: #333; font-size: 11px; }
+  .filter-tag button { border: 0; background: none; cursor: pointer; color: #555; font-size: 13px; line-height: 1; padding: 0 2px; }
+
+  .rows { border-top: 1px solid var(--line); }
+  .row-item { display: grid; grid-template-columns: 78px minmax(0, 1fr) 160px; gap: 12px; align-items: start; padding: 11px 6px; border-bottom: 1px solid var(--line); cursor: pointer; transition: background .12s, opacity .25s; }
+  .row-item:hover { background: #f7f7f7; }
+  .row-item.is-selected { box-shadow: inset 0 0 0 2px var(--aha-color-text-link); border-radius: 4px; background: #fff; }
+  .row-item.is-leaving { opacity: 0; }
+  .row-item .title { font-size: 13px; font-weight: 500; color: var(--aha-color-text); line-height: 20px; }
+  .row-item > div:first-child { display: flex; align-items: center; height: 20px; }
+  .row-item .why { font-size: 12px; color: var(--aha-color-text-secondary); margin-top: 2px; line-height: 1.4; }
+  .row-item .who { display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 20px; font-size: 12px; color: var(--aha-color-text-secondary); white-space: nowrap; }
+  .row-item .who .late { color: #9c1f0e; }
+  .row-item .act { display: none; justify-content: flex-end; align-items: center; gap: 4px; font-size: 12px; color: var(--aha-color-text-link); white-space: nowrap; }
+  .row-item:hover .who, .row-item.is-selected .who { display: none; }
+  .row-item:hover .act, .row-item.is-selected .act { display: flex; }
+  .row-item .kind { font-size: 11px; color: var(--aha-color-text-tertiary); margin-top: 3px; }
+  .stage-pill { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 11px; line-height: 17px; color: #333; white-space: nowrap; }
+  .sp-aim { background: #dbefff; } .sp-build { background: #fff6cc; } .sp-check { background: #dcf5e7; }
+  .empty { padding: 20px 6px; color: var(--aha-color-text-secondary); font-size: 12px; display: flex; align-items: center; gap: 10px; }
+  .empty b { color: var(--aha-color-text); font-weight: 600; font-size: 13px; display: block; }
+
+  .handled { margin-top: 36px; }
+  .handled .row-item { padding: 8px 6px; }
+  .handled .title { font-weight: 400; }
+
+  .meet-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 12px; cursor: pointer; }
+  .meet-row:hover { background: #f7f7f7; }
+  .meet-row .t { color: var(--aha-color-text-secondary); }
+  .meet-row .n { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meet-row .t.is-next { color: #0073cf; font-weight: 600; }
+  .more-faces { font-size: 10px; color: var(--aha-color-text-tertiary); margin-left: 3px; align-self: center; }
+  .meet-row .faces { align-items: center; }
+  .meet-row .c { color: var(--aha-color-text-secondary); font-size: 11px; margin-top: 1px; }
+  .meet-row.is-past { opacity: .5; }
+  .meet-row.is-next { box-shadow: inset 3px 0 0 #0073cf; }
+  .next-tag { font-size: 10px; font-weight: 500; padding: 0 5px; border-radius: 4px; background: #ebf6ff; color: #333; }
+  .side-block { margin-bottom: 32px; }
+  .meet-day { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--aha-color-text-tertiary); margin: 18px 0 2px; }
+  .meet-day:first-child { margin-top: 4px; }
+
+  /* Drawer: 650px, slides on right, no scrim. */
+  .drawer { top: 41px; }
+  .drawer__bar { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-bottom: 1px solid var(--line); flex: none; }
+  .drawer__bar .muted { color: var(--aha-color-text-tertiary); font-size: 12px; }
+  .drawer__bar .spacer { flex: 1; }
+  .drawer__scroll { overflow-y: auto; padding: 20px 24px 40px; flex: 1; }
+  .drawer h2 { font-size: 20px; font-weight: 600; margin: 8px 0 8px; line-height: 1.25; }
+  .drawer .byline { display: flex; align-items: center; gap: 8px; color: var(--aha-color-text-secondary); font-size: 12px; margin-bottom: 18px; }
+  .drawer .byline b { color: var(--aha-color-text); font-weight: 500; }
+  .drawer h4 { font-size: 11px; font-weight: 600; margin: 22px 0 8px; text-transform: uppercase; letter-spacing: .05em; color: var(--aha-color-text-secondary); }
+  .ai-result { font-size: 12px; line-height: 1.5; }
+  .ai-result .ai-head { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ai); margin-bottom: 6px; }
+  .ai-result ul { margin: 6px 0 0; padding-left: 18px; }
+  .check-list { border: 1px solid var(--aha-color-border-primary); border-radius: 4px; }
+  .check-list .ci { display: grid; grid-template-columns: 22px 22px minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .check-list .ci:last-child { border-bottom: 0; }
+  .check-list .ci:hover { background: #fafafa; }
+  .check-list .ci .rank { color: var(--aha-color-text-tertiary); text-align: right; }
+  .check-list .ci .new { font-size: 10px; margin-left: 4px; }
+  .check-list .ci.is-off span:nth-child(3) { color: var(--aha-color-text-tertiary); text-decoration: line-through; }
+  .gap { color: #9c1f0e; font-weight: 600; }
+  .ok { color: #4f8f0e; font-weight: 600; }
+  .people-line { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .drawer__foot { flex: none; display: flex; gap: 8px; align-items: center; padding: 12px 24px; border-top: 1px solid var(--aha-color-border-primary); }
+  .drawer__foot .spacer { flex: 1; }
+  .drawer__foot .input { flex: 1; height: 30px; }
+
+  .h4-note { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--aha-color-text-tertiary); margin-left: 6px; }
+  .what-next { margin-top: 14px; padding: 8px 10px; border-radius: 4px; background: #f7f7f7; font-size: 12px; color: var(--aha-color-text-secondary); }
+  .what-next::before { content: 'What happens: '; font-weight: 600; color: var(--aha-color-text); }
+  .cmp { display: none; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 10px 10px 38px; border-bottom: 1px solid var(--line); background: #fafafa; font-size: 12px; }
+  .cmp.is-open { display: grid; }
+  .cmp span { display: block; font-size: 11px; color: var(--aha-color-text-tertiary); }
+  .cmp.list { grid-template-columns: 1fr 1fr; color: var(--aha-color-text-secondary); }
+  .cmp.list div::before { content: '\2713  '; color: #4f8f0e; }
+  .choices { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px 12px; font-size: 12px; margin: 0; }
+  .choices dt { font-weight: 500; } .choices dd { margin: 0; color: var(--aha-color-text-secondary); }
+  .facts { border: 1px solid var(--aha-color-border-primary); border-radius: 4px; font-size: 12px; }
+  .facts div { display: grid; grid-template-columns: 120px minmax(0, 1fr); padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  .facts div:last-child { border-bottom: 0; }
+  .facts span { color: var(--aha-color-text-tertiary); }
+  .textarea.ai-draft { width: 100%; box-sizing: border-box; border-color: #c9a6f5; background: #fcf9ff; font: inherit; font-size: 13px; line-height: 1.5; padding: 8px 10px; resize: vertical; }
+  .input.is-invalid, .textarea.is-invalid { border-color: #c9250e; box-shadow: 0 0 0 2px #fff0ee; }
+  #drawer .input { box-sizing: border-box; }
+  #drawer .drawer__scroll > .input { width: 100%; }
+  .funnel { display: grid; gap: 8px; font-size: 12px; }
+  .f-row { display: grid; grid-template-columns: 100px minmax(0, 1fr) 110px; gap: 10px; align-items: center; }
+  .f-row .bar { position: relative; height: 14px; background: #f1f1f1; border-radius: 2px; }
+  .f-row .bar i { position: absolute; inset: 0 auto 0 0; background: #8fc3ef; border-radius: 2px; }
+  .f-row.is-bad .bar i { background: #f0a090; }
+  .f-row .bar em { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #555; }
+  .f-row small { color: var(--aha-color-text-tertiary); font-weight: 400; }
+  .report { border: 1px solid var(--aha-color-border-primary); border-radius: 4px; }
+  .r-sec { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.45; }
+  .r-sec:last-child { border-bottom: 0; }
+  .r-sec b { display: block; font-size: 11px; font-weight: 600; color: var(--aha-color-text-secondary); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .cap { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .cap-bar { position: relative; flex: 1; height: 10px; background: #f1f1f1; border-radius: 5px; }
+  .cap-bar i { position: absolute; inset: 0 auto 0 0; background: #8fc3ef; border-radius: 5px; transition: width .2s; }
+  .cap-bar i.is-over { background: #f0a090; }
+  .cap-bar em { position: absolute; top: -4px; bottom: -4px; left: 84.7%; width: 2px; background: #555; }
+  .cap-num { font-size: 12px; white-space: nowrap; } .cap-num b { font-size: 16px; font-weight: 600; }
+  .pts, .muted-s { color: var(--aha-color-text-tertiary); font-size: 12px; }
+  .row-item.is-undone .title { color: var(--aha-color-text-tertiary); text-decoration: line-through; }
+  .undone-tag { display: inline-block; text-decoration: none; font-size: 10px; padding: 0 5px; border-radius: 4px; background: #fff0ee; color: #333; margin-left: 6px; }
+
+  .agent-head { display: flex; gap: 12px; align-items: center; }
+  .agent-job { font-size: 13px; line-height: 1.5; }
+  .dial { display: flex; border: 1px solid var(--aha-color-border-primary); border-radius: 4px; overflow: hidden; }
+  .dial button { flex: 1; border: 0; background: #fff; font: inherit; font-size: 12px; padding: 6px 4px; cursor: pointer; color: var(--aha-color-text-secondary); border-left: 1px solid var(--aha-color-border-primary); }
+  .dial button:first-child { border-left: 0; }
+  .dial button:hover { background: #fafafa; }
+  .dial button.is-active { background: var(--ai-bg); color: var(--ai); font-weight: 600; }
+  .row-item.notif { grid-template-columns: 28px minmax(0, 1fr) 90px; }
+  .elle-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .elle-q { margin: 14px 0 6px; font-size: 13px; font-weight: 500; text-align: right; }
+  .drawer.is-wide { width: calc(100% - 316px); }
+  .mw-header .menu-wrap .mp-menu { top: 34px; }
+
+  .page-tabs { gap: 4px; height: auto; border-bottom: 0; margin: -6px 0 20px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .page-tabs .tab { height: 28px; padding: 0 10px; gap: 6px; border: 0; border-radius: 14px; margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 400; color: var(--aha-color-text-secondary); transition: background .12s, color .12s; }
+  .page-tabs .tab:hover { background: #f7f7f7; color: var(--aha-color-text); text-decoration: none; }
+  .page-tabs .tab.is-active { background: #ebebeb; color: var(--aha-color-text); font-weight: 500; border: 0; }
+  .page-tabs .tab .icon { color: inherit; opacity: .8; }
+  .page-tabs .tab .tab-count { margin-left: 0; background: #ebebeb; color: var(--aha-color-text-secondary); font-weight: 500; }
+  .page-tabs .tab.is-active .tab-count { background: #fff; color: var(--aha-color-text); }
+  .simple-view { max-width: 920px; }
+  .todo-group { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--aha-color-text-tertiary); margin: 18px 0 4px; }
+  .todo-group:first-of-type { margin-top: 4px; }
+  #view-todos .note-row .muted-s { width: 190px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #view-todos .note-row .since { width: 70px; }
+  .row-item.notif.is-read .title { color: var(--aha-color-text-secondary); font-weight: 400; }
+
+  .agent-tabs { margin: 14px 0 12px; }
+  .agent-tabs .tab { cursor: pointer; }
+  .chat { display: flex; flex-direction: column; gap: 12px; margin: 4px 0 12px; }
+  .msg { display: flex; gap: 8px; font-size: 13px; line-height: 1.5; max-width: 88%; }
+  .msg .bubble { padding: 8px 11px; border-radius: 8px; background: #f5eeff; border: 1px solid #e4d3fb; }
+  .msg.you { align-self: flex-end; padding: 8px 11px; border-radius: 8px; background: #ebf6ff; border: 1px solid #cfe5f8; }
+  .msg-link { display: block; margin-top: 6px; font-size: 12px; cursor: pointer; }
+  .msg.typing .bubble { display: flex; gap: 4px; padding: 12px; }
+  .msg.typing i { width: 6px; height: 6px; border-radius: 50%; background: #a98bd6; animation: blink 1s infinite; }
+  .msg.typing i:nth-child(2) { animation-delay: .15s; } .msg.typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+  .chat-chips .btn { white-space: normal; height: auto; min-height: 26px; text-align: left; }
+
+  /* Toast with undo. */
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 14px; background: #333; color: #fff; font-size: 12px; padding: 8px 12px 8px 14px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.2); transition: opacity .2s, transform .2s; z-index: 1000; }
+  .toast.is-on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast a { color: #8fc3ef; cursor: pointer; font-weight: 500; }
+
+  .hidden { display: none !important; }
+  .proto-note { position: fixed; right: 12px; bottom: 10px; font-size: 10px; color: var(--aha-color-text-tertiary); z-index: 5; pointer-events: none; }
+
+  @media (max-width: 1300px) {
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    .pane { padding: 24px 24px 80px; }
+    .meet-view { grid-template-columns: 260px minmax(0, 1fr); }
+    .stage { padding-left: 8px; padding-right: 6px; }
+    .stage .ai, .stage .input-note { display: none; }
+  }
+  @media (max-width: 1000px) {
+    .nav-sidebar { width: 220px; }
+    .nav-sidebar__item .sub, .nav-sidebar__item .count { display: none; }
+    .row-item, .handled .row-item { grid-template-columns: 70px minmax(0, 1fr); }
+    .row-item .who, .row-item:hover .act { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<!--SPRITE-->
+<div class="app">
+
+  <nav class="top-nav">
+    <span class="brand"><svg class="icon icon-18" style="color:var(--aha-color-text-link)"><use href="#aha-icon-roadmaps"></use></svg> Aha!</span>
+    <span class="workspace-picker">Matchday app <svg class="icon"><use href="#aha-icon-sort"></use></svg></span>
+    <span class="nav-icons">
+      <a class="top-nav-item" title="Knowledge"><svg class="icon icon-14"><use href="#aha-icon-knowledge"></use></svg></a>
+      <a class="top-nav-item" title="Strategy"><svg class="icon icon-14"><use href="#aha-icon-target"></use></svg></a>
+      <a class="top-nav-item" title="Releases"><svg class="icon icon-14"><use href="#aha-icon-date"></use></svg></a>
+      <a class="top-nav-item" title="Ideas"><svg class="icon icon-14"><use href="#aha-icon-ideas"></use></svg></a>
+      <a class="top-nav-item" title="Features"><svg class="icon icon-14"><use href="#aha-icon-rectangles"></use></svg></a>
+      <a class="top-nav-item" title="Roadmaps"><svg class="icon icon-14"><use href="#aha-icon-roadmap"></use></svg></a>
+    </span>
+    <span class="spacer" style="flex:1"></span>
+    <button class="btn btn-icon" title="Search" id="top-search"><svg class="icon"><use href="#aha-icon-search"></use></svg></button>
+    <button class="btn btn-icon" title="Elle" id="top-elle"><svg class="elle-icon" style="width:16px;height:16px"><use href="#elle-icon"></use></svg></button>
+    <span data-face="you" data-size="s24"></span>
+  </nav>
+
+  <div class="mw-header">
+    <h1 class="page-title">My work</h1>
+    <button class="btn btn-icon" title="Collapse" id="collapse">&laquo;</button>
+    <span class="menu-wrap"><button class="btn btn-primary" id="add-btn">Add &#9662;</button>
+      <div class="mp-menu" id="add-menu" style="left:0;right:auto"><a data-add="todo">To-do</a><a data-add="idea">Idea</a><a data-add="feature">Feature</a><a data-add="meeting note">Meeting note</a></div></span>
+    <span class="spacer"></span>
+    <span class="search-field" style="width:220px"><svg class="icon"><use href="#aha-icon-search"></use></svg><input placeholder="Search my work" id="search"></span>
+  </div>
+
+  <div class="mw-body">
+    <aside class="nav-sidebar">
+      <a class="nav-sidebar__item is-active" data-nav="today"><svg class="icon icon-14"><use href="#aha-icon-target"></use></svg> Today</a>
+      <a class="nav-sidebar__item" data-nav="elle"><svg class="elle-icon" style="width:14px;height:14px"><use href="#elle-icon"></use></svg> Elle</a>
+      <div class="nav-sidebar__group-header">Agents</div>
+      <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Matchday PM"><span data-face="Matchday PM" data-size="s16"></span> Matchday PM</a>
+      <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Validation agent"><span data-face="Validation agent" data-size="s16"></span> Validation agent</a>
+      <a class="nav-sidebar__item nav-sidebar__item--compact" data-agent="Coding agent"><span data-face="Coding agent" data-size="s16"></span> Coding agent</a>
+      <div class="nav-sidebar__group-header">Everything else</div>
+      <a class="nav-sidebar__item" data-nav="notifications"><svg class="icon icon-14"><use href="#aha-icon-announcement"></use></svg> Notifications</a>
+      <a class="nav-sidebar__item" data-nav="meetings"><svg class="icon icon-14"><use href="#aha-icon-date"></use></svg> Meetings</a>
+      <a class="nav-sidebar__item" data-nav="todos"><svg class="icon icon-14"><use href="#aha-icon-check-list"></use></svg> To-dos</a>
+      <a class="nav-sidebar__item" data-nav="records"><svg class="icon icon-14"><use href="#aha-icon-records"></use></svg> Records</a>
+      <a class="nav-sidebar__item" data-nav="documents"><svg class="icon icon-14"><use href="#aha-icon-book-dot"></use></svg> Documents</a>
+    </aside>
+
+    <main class="pane">
+     <div class="pane-inner">
+      <div class="pane-top">
+        <h2>Today</h2>
+        <span class="date">Thursday, November 13</span>
+      </div>
+      <div class="tabs page-tabs">
+        <a class="tab is-active" data-view="decisions"><svg class="icon icon-14"><use href="#aha-icon-approved"></use></svg>Decisions <span class="tab-count" id="dec-count">7</span></a>
+        <a class="tab" data-view="meetings"><svg class="icon icon-14"><use href="#aha-icon-date"></use></svg>Meetings <span class="tab-count" title="3 left today">3</span></a>
+        <a class="tab" data-view="todos"><svg class="icon icon-14"><use href="#aha-icon-check-list"></use></svg>To-dos <span class="tab-count" id="todo-count">5</span></a>
+        <a class="tab" data-view="notifications"><svg class="icon icon-14"><use href="#aha-icon-announcement"></use></svg>Notifications <span class="tab-count" id="notif-count">14</span></a>
+        <span class="spacer"></span>
+        <span class="scope-wrap" id="scope-wrap"><span class="scope-label">Show</span>
+          <span class="segmented" id="scope">
+            <button class="is-active" data-scope="mine">Mine</button>
+            <button data-scope="team">My team</button>
+          </span>
+        </span>
+      </div>
+      <div id="view-todos" class="hidden simple-view"></div>
+      <div id="view-notifs" class="hidden simple-view"></div>
+      <div id="view-meetings" class="meet-view hidden">
+        <div class="meet-list"><div id="meetings"></div></div>
+        <div class="meet-pane" id="meet-pane"></div>
+      </div>
+      <div id="view-work">
+
+      <div class="phases">
+        <div class="phase-band aim">Aim</div>
+        <div class="phase-band build">Build</div>
+        <div class="phase-band check">Check</div>
+      </div>
+      <div class="stages" id="stages"></div>
+
+
+      <div class="cols">
+        <section>
+          <div class="sec-head">
+            <h3 id="queue-title">Needs your decision</h3>
+            <span class="meta" id="queue-meta"></span>
+            <span id="filter-tag"></span>
+          </div>
+          <div class="rows" id="queue"></div>
+
+          <div class="handled">
+            <div class="sec-head">
+              <h3>Done by agents today</h3>
+              <span class="meta" id="handled-meta"></span>
+              <span class="spacer"></span>
+              <a id="see-all">See all 38</a>
+            </div>
+            <div class="rows" id="handled"></div>
+          </div>
+        </section>
+      </div>
+      </div>
+     </div>
+    </main>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__bar">
+      <button class="btn btn-icon" id="drawer-close" title="Close">&raquo;</button>
+      <span class="muted" id="d-kind">Decision</span>
+      <span class="spacer"></span>
+      <span class="menu-wrap"><button class="btn btn-icon" title="More" id="drawer-more">&middot;&middot;&middot;</button>
+        <div class="mp-menu" id="drawer-menu"><a data-dmenu="wide">Open as full page</a><a data-dmenu="copy">Copy link</a></div></span>
+    </div>
+    <div class="drawer__scroll" id="d-body"></div>
+    <div class="drawer__foot" id="d-foot"></div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"><span id="toast-text"></span><a id="toast-undo">Undo</a></div>
+<div class="proto-note">Prototype. All names and data are invented.</div>
+
+<script>
+/* People. Photos are generated portraits from randomuser.me; initials show if they fail to load. */
+const PEOPLE = {
+  you:     { name: 'You', init: 'YO', photo: 'https://randomuser.me/api/portraits/men/46.jpg' },
+  Marcus:  { name: 'Marcus Reed', init: 'MR', photo: 'https://randomuser.me/api/portraits/men/32.jpg' },
+  Priya:   { name: 'Priya Shah', init: 'PS', photo: 'https://randomuser.me/api/portraits/women/44.jpg' },
+  Nina:    { name: 'Nina Brooks', init: 'NB', photo: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  Sam:     { name: 'Sam Kowalski', init: 'SK', photo: 'https://randomuser.me/api/portraits/men/75.jpg' },
+  Elena:   { name: 'Elena Lopez', init: 'EL', photo: 'https://randomuser.me/api/portraits/women/12.jpg' },
+  'Matchday PM':      { agent: true, init: 'MP' },
+  'Validation agent': { agent: true, init: 'VA' },
+  'Coding agent':     { agent: true, init: 'CA' },
+  Elle:               { elle: true },
+};
+function face(key, size = '') {
+  const p = PEOPLE[key] || { init: key.slice(0, 2).toUpperCase() };
+  if (p.elle) return `<span class="face agent ${size}"><svg class="elle-icon" style="width:70%;height:70%"><use href="#elle-icon"></use></svg></span>`;
+  if (p.agent) return `<span class="face agent ${size}" title="${key}">${p.init}</span>`;
+  return `<span class="face ${size}" title="${p.name}"><img src="${p.photo}" alt="${p.name}" onerror="this.parentNode.textContent='${p.init}'"></span>`;
+}
+const displayName = k => k === 'you' ? 'You' : k;
+document.querySelectorAll('[data-face]').forEach(el => el.outerHTML = face(el.dataset.face, el.dataset.size));
+
+const STAGES = [
+  { id: 'strategize', name: 'Strategize', band: 'aim', input: true },
+  { id: 'discover', name: 'Discover', band: 'aim' },
+  { id: 'plan', name: 'Plan', band: 'aim' },
+  { id: 'validate', name: 'Validate', band: 'aim' },
+  { id: 'deliver', name: 'Deliver', band: 'build' },
+  { id: 'analyze', name: 'Analyze', band: 'check' },
+  { id: 'report', name: 'Report', band: 'check' },
+];
+const BAND = Object.fromEntries(STAGES.map(s => [s.id, s.band]));
+const NAME = Object.fromEntries(STAGES.map(s => [s.id, s.name]));
+
+const QUEUE = {
+  mine: [
+    { id: 'q1', stage: 'plan', kind: 'Ranked list', title: "Agree on this week's top 10 features", why: 'Matchday PM ranked them against the season goal. 3 are new, led by family ticket bundles.', who: 'Matchday PM', since: 'today', act: 'Review the list', drawer: 'top10', done: 'Agreed. Matchday PM will update the features board.' },
+    { id: 'q2', stage: 'validate', kind: 'Approval', title: 'Review ticket transfer before it ships Tuesday', why: '2 of 11 requirements do not match the spec. Marcus is waiting on you.', who: 'Marcus', since: '1 day', act: 'Review the 2 gaps', drawer: 'validate', done: 'Sent back to Marcus with the 2 gaps.' },
+    { id: 'q3', stage: 'discover', kind: 'New theme', title: 'Decide what to do with family ticket bundles', why: 'Requests doubled since September: 18 ideas, 4 support threads, and 2 interviews. Nothing on the roadmap covers it.', who: 'Elle', since: 'today', act: 'Decide', drawer: 'theme', done: 'Epic created: Family ticket bundles.' },
+    { id: 'q4', stage: 'deliver', kind: 'Build choice', title: 'Pick a score feed for the live score widget', why: 'The coding agent built both. The current feed is free but 30 seconds behind. The new one is live but needs a contract.', who: 'Coding agent', since: '3 hours', act: 'Compare the options', drawer: 'options', done: 'The coding agent is building with the current feed.' },
+    { id: 'q5', stage: 'plan', kind: 'Mention', title: 'Answer Priya: can the kit still launch March 3?', why: 'She is asking in case returns slip a sprint. Elle drafted a yes.', who: 'Priya', since: '2 days', late: true, act: "Review Elle's reply", drawer: 'reply', done: 'Reply sent to Priya.' },
+    { id: 'q6', stage: 'analyze', kind: 'Insight', title: 'Match day check-in dropped 6% after the new sign-in', why: 'Fans leave on the second step. Matchday PM drafted an idea to cut it.', who: 'Matchday PM', since: 'today', act: 'Open the idea', drawer: 'insight', done: 'Idea opened: Shorten match day sign-in.' },
+    { id: 'q7', stage: 'report', kind: 'To-do', title: 'Approve the November board report', why: 'Elle drafted it from the goals and this month\'s numbers. Nina needs it Friday.', who: 'Nina', since: 'due Fri', act: 'Review the draft', drawer: 'report', done: 'Report approved and shared with Nina.' },
+  ],
+  team: [
+    { id: 't1', stage: 'validate', kind: 'Waiting on Priya', title: "Priya's review is holding up renewal reminders", why: 'Built 4 days ago. Engineering cannot ship until she signs off.', who: 'Priya', since: '4 days', late: true, act: 'Nudge Priya', drawer: 'nudge', done: 'Nudged Priya.' },
+    { id: 't2', stage: 'plan', kind: 'Waiting on Sam', title: 'Sam needs to cut 18 points from the Spring release', why: 'Matchday PM suggests moving the 2 features that score lowest against the release goal.', who: 'Sam', since: '2 days', late: true, act: 'Open the release', drawer: 'capacity', done: 'Opened the Spring release.' },
+    { id: 't3', stage: 'discover', kind: 'Waiting on Elena', title: 'Stadium maps has no customer feedback after 5 days', why: 'Elena shared the prototype with 6 customers. None have opened it.', who: 'Elena', since: '5 days', late: true, act: 'Ask Elle to follow up', drawer: 'followup', done: 'Elle will follow up with the 6 customers.' },
+    { id: 't4', stage: 'validate', kind: 'Waiting on you', title: 'Marcus is waiting on your ticket transfer review', why: '2 gaps to settle before Tuesday\'s release.', who: 'you', since: '1 day', act: 'Review the 2 gaps', drawer: 'validate', done: 'Sent back to Marcus with the 2 gaps.' },
+  ],
+};
+
+const HANDLED = [
+  { stage: 'discover', title: 'Merged 9 duplicate ideas into Mobile ticket wallet', who: 'Matchday PM', when: '8:12am',
+    changes: ['9 ideas now point to Mobile ticket wallet', 'Their 41 votes moved with them', 'Each submitter got a note with the new link'],
+    why: 'Every one asked for tickets in the phone wallet. Merging duplicates is on its own for this workspace.', undoMsg: 'Undone. The 9 ideas are separate again.' },
+  { stage: 'validate', title: 'Approved 3 copy fixes on the shop page', who: 'Validation agent', when: '9:40am',
+    changes: ['Fixed "colour" to "color" on 2 buttons', 'Shortened the returns banner', 'All 3 match the copy in the spec'],
+    why: 'Copy changes under 20 words with no layout change pass on their own.', undoMsg: 'Undone. The 3 fixes are back in review.' },
+  { stage: 'deliver', title: 'Moved 2 release dates to match Jira', who: 'Coding agent', when: '10:05am',
+    changes: ['Merch pre-order: Feb 10 to Feb 14', 'Away fan travel info: Feb 21 to Feb 24'],
+    why: 'Engineering moved the sprint in Jira. Keeping dates in sync is on its own.', undoMsg: 'Undone. Both dates are back to Feb 10 and Feb 21.' },
+  { stage: 'discover', title: 'Answered 4 portal comments with knowledge base articles', who: 'Matchday PM', when: '11:30am',
+    changes: ['Linked "Transfer a ticket" on 2 comments', 'Linked "Find your seat" on 1 comment', 'Linked "Refunds" on 1 comment'],
+    why: 'Each question matched a published article word for word.', undoMsg: 'Undone. The 4 replies are removed.' },
+  { stage: 'report', title: 'Refreshed the weekly ticket sales dashboard', who: 'Matchday PM', when: '12:00pm',
+    changes: ['Pulled this week\'s sales: 18,240 tickets', 'Updated the season comparison chart'],
+    why: 'Dashboard refreshes run every Thursday at noon.', undoMsg: 'Undone. The dashboard shows last week again.' },
+  // Discover: 9 more
+  { stage: 'discover', title: 'Tagged 14 new ideas with their persona', who: 'Matchday PM', when: '7:05am', changes: ['14 ideas tagged: 9 season ticket holders, 5 casual fans'], why: 'Persona tags follow the rules in the workspace settings.' },
+  { stage: 'discover', title: 'Linked 6 support threads to the Group tickets epic', who: 'Matchday PM', when: '7:40am', changes: ['6 threads from the help desk now show on Group tickets'], why: 'Each thread names group checkout, which Group tickets covers.' },
+  { stage: 'discover', title: 'Summarized Tuesday\'s fan interview', who: 'Matchday PM', when: '8:30am', changes: ['Added a summary and 4 highlights to the interview record'], why: 'Interview summaries run after every recording is uploaded.' },
+  { stage: 'discover', title: 'Merged 3 duplicate ideas into Stadium maps', who: 'Matchday PM', when: '9:15am', changes: ['3 ideas point to Stadium maps', '12 votes moved with them'], why: 'All three asked for a seat map in the app.', undoMsg: 'Undone. The 3 ideas are separate again.' },
+  { stage: 'discover', title: 'Set 5 ideas to "Needs more info"', who: 'Matchday PM', when: '10:20am', changes: ['5 ideas had no description; each submitter got a question'], why: 'Ideas under 10 words get a follow-up question.' },
+  { stage: 'discover', title: 'Scored 8 new ideas against the season goal', who: 'Matchday PM', when: '10:50am', changes: ['8 ideas now have a goal fit score from 31 to 74'], why: 'Scoring runs when an idea gets its first vote.' },
+  { stage: 'discover', title: 'Added 2 competitor notes from release news', who: 'Matchday PM', when: '12:40pm', changes: ['2 notes added to the competitor record for ticketing apps'], why: 'Competitor news is collected daily.' },
+  { stage: 'discover', title: 'Closed 4 ideas that shipped in Mobile ticket wallet', who: 'Matchday PM', when: '1:05pm', changes: ['4 ideas set to Shipped', 'Each submitter got a note'], why: 'The ideas link to a feature that shipped.', undoMsg: 'Undone. The 4 ideas are open again.' },
+  { stage: 'discover', title: 'Grouped 18 ideas into a new theme: family ticket bundles', who: 'Matchday PM', when: '1:20pm', changes: ['New theme with 18 ideas', 'Sent to you as a decision'], why: 'Themes form when 10 or more ideas share a request.' },
+  // Plan: 6
+  { stage: 'plan', title: 'Reranked the features board after 3 new ideas linked', who: 'Matchday PM', when: '7:30am', changes: ['Family ticket bundles moved from 9th to 3rd'], why: 'Ranking refreshes when linked demand changes by more than 10%.', undoMsg: 'Undone. The board order is back to yesterday.' },
+  { stage: 'plan', title: 'Filled in estimates on 4 new features', who: 'Matchday PM', when: '8:45am', changes: ['4 features got initial estimates from similar past work'], why: 'Initial estimates fill in for features with none.' },
+  { stage: 'plan', title: 'Drafted requirements for Guest ticket transfer limits', who: 'Matchday PM', when: '9:50am', changes: ['3 draft requirements added, marked as drafts'], why: 'Drafting requirements is set to on its own; you review before development.' },
+  { stage: 'plan', title: 'Updated the Spring roadmap after the Jira sync', who: 'Matchday PM', when: '10:10am', changes: ['2 bars moved on the Spring roadmap'], why: 'Roadmaps follow release dates automatically.' },
+  { stage: 'plan', title: 'Linked 2 features to the season goal', who: 'Matchday PM', when: '11:10am', changes: ['Merch pre-order and Live score widget now support the goal'], why: 'Both features name revenue per fan in their description.' },
+  { stage: 'plan', title: 'Flagged that the Spring release is over capacity', who: 'Matchday PM', when: '11:45am', changes: ['Sent Sam a decision: 18 points over'], why: 'Capacity checks run when estimates change.' },
+  // Validate: 8 more
+  { stage: 'validate', title: 'Passed the seat filter fix on staging', who: 'Validation agent', when: '7:20am', changes: ['All 4 requirements match the spec'], why: 'Builds under 50 changed lines that match every requirement pass on their own.' },
+  { stage: 'validate', title: 'Passed the new loading spinner', who: 'Validation agent', when: '8:05am', changes: ['Matches the approved prototype'], why: 'Visual changes that match the prototype pass on their own.' },
+  { stage: 'validate', title: 'Checked ticket transfer against the spec', who: 'Validation agent', when: '9:00am', changes: ['9 of 11 requirements match', 'Sent the 2 gaps to you as a decision'], why: 'A rebuild this size always goes to a person.' },
+  { stage: 'validate', title: 'Passed 2 accessibility fixes', who: 'Validation agent', when: '10:30am', changes: ['Button labels now read correctly on screen readers'], why: 'Accessibility fixes with passing checks pass on their own.' },
+  { stage: 'validate', title: 'Passed the renewal email template', who: 'Validation agent', when: '11:00am', changes: ['Copy and layout match the spec'], why: 'Email templates that match the spec pass on their own.' },
+  { stage: 'validate', title: 'Asked Elena about a missing empty state', who: 'Validation agent', when: '11:20am', changes: ['Comment on Stadium maps: no empty state in the prototype'], why: 'Questions go to the prototype owner, not to you.' },
+  { stage: 'validate', title: 'Passed the away fan travel copy', who: 'Validation agent', when: '12:15pm', changes: ['Copy matches the spec'], why: 'Copy changes under 20 words pass on their own.' },
+  { stage: 'validate', title: 'Reran the checkout tests after a fix', who: 'Validation agent', when: '1:10pm', changes: ['42 of 42 tests pass'], why: 'Tests rerun on every new build.' },
+  // Deliver: 3 more
+  { stage: 'deliver', title: 'Opened a pull request for the seat filter fix', who: 'Coding agent', when: '7:10am', changes: ['Pull request opened with 38 changed lines'], why: 'Small fixes with a clear requirement are on its own.' },
+  { stage: 'deliver', title: 'Fixed a failing test in the checkout suite', who: 'Coding agent', when: '9:30am', changes: ['1 test updated to match the new receipt layout'], why: 'Test fixes that do not change behavior are on its own.' },
+  { stage: 'deliver', title: 'Built two options for the live score widget', who: 'Coding agent', when: '10:40am', changes: ['2 branches ready', 'Sent you the choice'], why: 'A new vendor contract always goes to a person.' },
+  // Analyze: 5
+  { stage: 'analyze', title: 'Flagged a 6% drop in match day check-in', who: 'Matchday PM', when: '7:50am', changes: ['Sent you an insight with a drafted idea'], why: 'Drops over 5% in check-in or checkout go to the feature owner.' },
+  { stage: 'analyze', title: 'Measured adoption of Mobile ticket wallet', who: 'Matchday PM', when: '8:20am', changes: ['41% of fans used the wallet in its first week'], why: 'Adoption is measured 7 days after a launch.' },
+  { stage: 'analyze', title: 'Compared renewals to last season', who: 'Matchday PM', when: '9:05am', changes: ['82% renewed, up from 76%'], why: 'Renewal tracking runs weekly in November.' },
+  { stage: 'analyze', title: 'Linked usage data to 3 ideas', who: 'Matchday PM', when: '10:00am', changes: ['3 ideas now show how often fans hit the screen they mention'], why: 'Usage links run when an idea names a screen.' },
+  { stage: 'analyze', title: 'Updated the goal progress for revenue per fan', who: 'Matchday PM', when: '11:50am', changes: ['Progress moved from 4.8% to 5.2%'], why: 'Goal progress updates daily from sales data.' },
+  // Report: 2 more
+  { stage: 'report', title: 'Drafted the November board report', who: 'Matchday PM', when: '8:00am', changes: ['Draft ready', 'Sent you a to-do to approve it'], why: 'Board reports always go to a person before they are shared.' },
+  { stage: 'report', title: 'Posted the weekly release notes draft', who: 'Matchday PM', when: '10:15am', changes: ['Draft added to the Spring release'], why: 'Release note drafts are on its own; publishing is not.' },
+];
+const mins = w => { const [h, m] = w.replace(/am|pm/, '').split(':').map(Number); return (h % 12 + (w.endsWith('pm') ? 12 : 0)) * 60 + m; };
+HANDLED.sort((a, b) => mins(b.when) - mins(a.when));
+const doneIn = stage => HANDLED.filter(h => h.stage === stage && !h.undone).length;
+
+
+const MEETINGS = [
+  { id: 'standup', day: 'Today', t: '9:00', n: 'Matchday standup', c: 'Zoom', who: ['Marcus', 'Priya', 'Sam'], past: true },
+  { id: 'priya', day: 'Today', t: '11:30', n: '1:1 with Priya', c: 'Zoom', who: ['Priya'], past: true },
+  { id: 'review', day: 'Today', t: '2:00', n: 'Ticket transfer design review', c: 'Zoom, in 40 minutes', who: ['Marcus', 'Elena', 'Sam'], next: true },
+  { id: 'spring', day: 'Today', t: '3:00', n: 'Spring release check-in', c: 'Zoom', who: ['Sam', 'Marcus'] },
+  { id: 'nina', day: 'Today', t: '4:00', n: 'Season planning with Nina', c: 'Board room', who: ['Nina'] },
+];
+let openMeeting = 2;
+const ROLES = { you: 'Group PM', Marcus: 'Engineering lead', Priya: 'Product manager, Merch', Nina: 'VP of product', Sam: 'Release manager', Elena: 'Product designer' };
+const BIOS = {
+  you: 'Group PM for Matchday app.',
+  Marcus: 'Engineering lead for ticketing. Joined the team in March 2025.',
+  Priya: 'Product manager for the Merch store. Reports to you.',
+  Nina: 'VP of product. Owns the season goals.',
+  Sam: 'Release manager. Runs the Spring and Summer releases.',
+  Elena: 'Product designer for match day. Reports to you.',
+};
+const ENDS = { '3:00': '3:30', '9:00': '9:15', '11:30': '12:00', '2:00': '2:30', '4:00': '4:45', '10:30': '11:00', '1:00': '1:30' };
+
+/* What each meeting carries: agenda, Elle's suggestions, open notes, and past meetings. */
+const MEET = {
+  standup: { agenda: [], notes: [], prev: [{ date: 'Nov 12', ago: 'Yesterday', discussed: [], notes: [] }] },
+  priya: { agenda: [{ t: 'Merch store: returns timing', done: true }, { t: 'Kit launch on March 3', done: true }],
+       notes: [{ t: 'Confirm whether returns can slip a sprint', o: 'Priya', since: 'Today', done: false }],
+       prev: [{ date: 'Nov 6', ago: '1 week ago', discussed: ['Merch pre-order went live', 'Returns flow needs one more sprint'], notes: ['Share the returns spec with engineering (done)'], summary: 'Merch pre-order went live on schedule. The returns flow needs one more sprint, and Priya shared the spec with engineering.' }] },
+  review: { agenda: [{ t: 'Walk through the rebuilt checkout' }],
+       suggest: [{ rel: 'q2' }, { t: 'Settle the transfer limit wording with Elena', why: 'Open since the last review.' }],
+       more: [{ t: 'Decide who signs off on the receipt email', why: 'The seat number gap touches email templates.' }],
+       notes: [{ t: 'Share the staging link before review', o: 'Marcus', since: 'Nov 6', done: false }, { t: 'Final copy for the transfer limit message', o: 'Elena', since: 'Nov 6', done: false }],
+       prev: [
+         { date: 'Nov 6', ago: '1 week ago', discussed: ['Marcus showed the first checkout build', 'The transfer limit message was still open', 'Sam asked to keep the Tuesday date'], notes: ['Share the staging link before review', 'Final copy for the transfer limit message'], summary: 'Marcus demoed the first checkout build, and the group agreed it is close. The transfer limit message is still open, and Sam wants to hold the Tuesday date. Marcus will share a staging link and Elena owns the final copy.' },
+         { date: 'Oct 30', ago: '2 weeks ago', discussed: ['Agreed on transfer by email or phone', 'Recipient accepts in the app'], notes: ['Prototype the accept flow (done)'], summary: 'The group settled on transfers by email or phone, with the recipient accepting in the app. Elena prototyped the accept flow afterward.' },
+         { date: 'Oct 23', ago: '3 weeks ago', discussed: [], notes: [] },
+       ] },
+  nina: { agenda: [{ t: 'Revenue per fan: where we are' }],
+       suggest: [{ rel: 'q1' }, { rel: 'q7' }, { t: 'Does family pricing count toward the per-fan goal?', why: 'Family ticket bundles is a new theme this week.' }],
+       more: [{ t: 'Renewals are ahead of last year', why: '82% renewed, up from 76%.' }],
+       notes: [{ t: 'Bring one number for match day revenue per fan', o: 'You', since: 'Oct 30', done: false }],
+       prev: [
+         { date: 'Oct 30', ago: '2 weeks ago', discussed: ['Nina asked for one number that shows match day revenue per fan', 'Spring release scope looked heavy'], notes: ['Bring one number for match day revenue per fan'], summary: 'Nina asked for one number that shows match day revenue per fan, and you agreed to bring it. She also flagged that the Spring release looked heavy.' },
+         { date: 'Oct 16', ago: '4 weeks ago', discussed: ['Set the season goal: grow match day revenue per fan 8%'], notes: ['Share the goal with the team (done)'], summary: 'You and Nina set the season goal: grow match day revenue per fan 8%. You shared it with the team the same week.' },
+       ] },
+  elena: { agenda: [{ t: 'Stadium maps: no feedback yet' }],
+       suggest: [{ rel: 't3' }, { t: 'Ask what she wants to learn next', why: 'Elena asked for a stretch assignment last month.' }],
+       notes: [{ t: 'Intro Elena to the supporters club lead', o: 'You', since: 'Nov 7', done: false }],
+       prev: [
+         { date: 'Nov 7', ago: '6 days ago', discussed: ['Stadium maps prototype went to 6 customers', 'She wants more time with fans on match day'], notes: ['Intro Elena to the supporters club lead'], summary: 'Elena sent the stadium maps prototype to 6 customers. She wants more time with fans on match day, so you offered an intro to the supporters club lead.' },
+         { date: 'Oct 31', ago: '2 weeks ago', discussed: [], notes: [] },
+       ] },
+  spring: { agenda: [{ t: 'Capacity: 18 points over' }],
+       suggest: [{ rel: 't2' }],
+       notes: [{ t: 'Confirm the Jira dates for both releases', o: 'Sam', since: 'Nov 6', done: false }],
+       prev: [{ date: 'Nov 6', ago: '1 week ago', discussed: ['The release was 18 points over capacity', 'Matchday PM suggested 2 features to move'], notes: ['Confirm the Jira dates for both releases'], summary: 'The Spring release is 18 points over capacity. Matchday PM suggested moving 2 features, and Sam will confirm the Jira dates first.' }] },
+};
+const mstate = {};
+function stateFor(i) {
+  i = MEETINGS[i].id;
+  if (!mstate[i]) {
+    const d = MEET[i] || { agenda: [], notes: [], prev: [] };
+    mstate[i] = { agenda: d.agenda.map(a => ({ ...a })), suggest: (d.suggest || []).map(s => ({ ...s })), more: (d.more || []).map(s => ({ ...s })),
+      notes: d.notes.map(n => ({ ...n })), prev: d.prev, openPrev: 0, tab: 'today', peopleOpen: false };
+  }
+  return mstate[i];
+}
+let meetFull = false;
+const findQ = id => [...QUEUE.mine, ...QUEUE.team].find(q => q.id === id);
+const firstName = p => p === 'you' ? 'You' : p;
+
+
+let scope = 'mine';
+let filter = null;
+let searchText = '';
+const matches = (...parts) => !searchText || parts.join(' ').toLowerCase().includes(searchText);
+const cleared = new Set();
+let lastCleared = null;
+
+const open = list => list.filter(q => !cleared.has(q.id));
+function counts() {
+  const c = {};
+  open(QUEUE[scope]).forEach(q => c[q.stage] = (c[q.stage] || 0) + 1);
+  return c;
+}
+
+function renderStages() {
+  const c = counts();
+  document.getElementById('stages').innerHTML = STAGES.map(s => {
+    if (s.input) return `<div class="stage ${s.band} is-input" title="Strategize is an input screen. Goals and personas feed every other stage."><div class="name">${s.name}</div><div class="input-note">Season goals set. Everything ranks against them.</div></div>`;
+    const n = c[s.id] || 0;
+    const cls = [s.band, filter === s.id ? 'is-selected' : '', filter && filter !== s.id ? 'is-dimmed' : ''].join(' ');
+    return `<button class="stage ${cls}" data-stage="${s.id}" title="${filter === s.id ? 'Show every stage' : 'Show only ' + s.name}">
+      <div class="name">${s.name}</div>
+      <div class="num ${n ? '' : 'zero'}"><b>${n}</b><span>${scope === 'mine' ? 'for you' : 'waiting'}</span></div>
+      <div class="ai">${doneIn(s.id)} done by AI</div></button>`;
+  }).join('');
+  document.querySelectorAll('button.stage').forEach(el => el.onclick = () => {
+    filter = filter === el.dataset.stage ? null : el.dataset.stage; render();
+  });
+}
+
+function renderQueue() {
+  const all = open(QUEUE[scope]);
+  const items = all.filter(q => (!filter || q.stage === filter) && matches(q.title, q.why, q.who));
+  document.getElementById('dec-count').textContent = open(QUEUE.mine).length;
+  document.getElementById('queue-title').textContent = scope === 'mine' ? 'Needs your decision' : 'What the team is waiting on';
+  document.getElementById('queue-meta').textContent = all.length ? `${all.length} open, about ${all.length * 2} minutes to clear` : '';
+  document.getElementById('filter-tag').innerHTML = filter ? `<span class="filter-tag">${NAME[filter]} only <button title="Show every stage" id="clear-filter">&times;</button></span>` : '';
+  if (filter) document.getElementById('clear-filter').onclick = () => { filter = null; render(); };
+
+  let html = items.map(q => `
+    <div class="row-item" data-id="${q.id}">
+      <div><span class="stage-pill sp-${BAND[q.stage]}">${NAME[q.stage]}</span></div>
+      <div><div class="title">${q.title}</div><div class="why">${q.why}</div></div>
+      <div class="who">${face(q.who)}<span>${displayName(q.who)} &middot; <span class="${q.late ? 'late' : ''}">${q.since}</span></span></div>
+      <div class="act">${q.act} &rsaquo;</div>
+    </div>`).join('');
+  if (!items.length) html = all.length
+    ? `<div class="empty">${searchText ? `Nothing matches "${searchText}".` : `Nothing waiting in ${NAME[filter]}.`}</div>`
+    : `<div class="empty">${face('Matchday PM', 's24')}<div><b>Nothing needs you right now.</b>Matchday PM will bring the next decision here.</div></div>`;
+  document.getElementById('queue').innerHTML = html;
+  document.querySelectorAll('#queue .row-item').forEach(el => el.onclick = () => openDrawer(el.dataset.id, el));
+}
+
+function renderHandled() {
+  const all = HANDLED.map((h, i) => [h, i]);
+  const items = searchText ? all.filter(([h]) => (!filter || h.stage === filter) && matches(h.title, h.who)) : filter ? all.filter(([h]) => h.stage === filter) : all.slice(0, 5);
+  const live = HANDLED.filter(h => !h.undone).length;
+  document.getElementById('handled-meta').textContent = filter
+    ? `${items.filter(([h]) => !h.undone).length} in ${NAME[filter]} today`
+    : `${live} actions, nothing needed from you. Latest 5.`;
+  document.getElementById('see-all').textContent = `See all ${live}`;
+  document.getElementById('handled').innerHTML = items.map(([h, i]) => `
+    <div class="row-item ${h.undone ? 'is-undone' : ''}" data-h="${i}">
+      <div><span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span></div>
+      <div><div class="title">${h.title}${h.undone ? ' <span class="undone-tag">Undone</span>' : ''}</div></div>
+      <div class="who">${face(h.who)}<span>${h.who} &middot; ${h.when}</span></div>
+      <div class="act">See what changed &rsaquo;</div>
+    </div>`).join('') || `<div class="empty">No agent actions in ${NAME[filter]} today.</div>`;
+  document.querySelectorAll('#handled .row-item').forEach(r => r.onclick = () => openAudit(+r.dataset.h, r));
+}
+
+function renderMeetings() {
+  let day = '';
+  document.getElementById('meetings').innerHTML = MEETINGS.map((m, i) => {
+    const head = m.day !== day ? `<div class="meet-day">${day = m.day}</div>` : '';
+    return head + `<div class="meet-row ${m.past ? 'is-past' : ''} ${openMeeting === i ? 'is-selected' : ''}" data-i="${i}">
+      <span class="t ${m.next ? 'is-next' : ''}" title="${m.next ? 'Next meeting' : ''}">${m.t}</span>
+      <span class="n" title="${m.n}">${m.n}</span>
+      <span class="faces">${m.who.slice(0, 2).map(w => face(w, 's16')).join('')}${m.who.length > 2 ? `<span class="more-faces">+${m.who.length - 2}</span>` : ''}</span>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.meet-row').forEach(r => r.onclick = () => { openMeeting = +r.dataset.i; renderMeetings(); });
+  renderMeetingPane();
+}
+function renderMeetingPane() {
+  const i = openMeeting, m = MEETINGS[i];
+  const pane = document.getElementById('meet-pane');
+  if (!m) { pane.innerHTML = ''; return; }
+  const st = stateFor(i);
+  const people = ['you', ...m.who];
+  const openNotes = st.notes.filter(n => !n.done).length;
+  const suggestions = st.suggest.filter(s => !s.rel || (!cleared.has(s.rel) && findQ(s.rel)));
+  const isZoom = m.c.startsWith('Zoom');
+
+  const agendaRows = [
+    `<label class="ag-row ${st.reviewDone ? 'is-done' : ''}"><input type="checkbox" data-ag="review" ${st.reviewDone ? 'checked' : ''}><span class="ag-n">1</span><span class="ag-t">Review notes${openNotes ? ` <span class="ag-count">${openNotes} open</span>` : ''}</span></label>`,
+    ...st.agenda.map((a, k) => {
+      const q = a.rel && findQ(a.rel);
+      return `<label class="ag-row ${a.done ? 'is-done' : ''}"><input type="checkbox" data-ag="${k}" ${a.done ? 'checked' : ''}><span class="ag-n">${k + 2}</span><span class="ag-t">${q ? `Decide: ${q.title}` : a.t}</span>${q && !cleared.has(a.rel) ? `<a class="ag-open" data-open="${a.rel}">Open</a>` : ''}<button class="ag-x" data-agx="${k}" title="Remove">&times;</button></label>`;
+    }),
+    ...suggestions.map((s, k) => {
+      const q = s.rel && findQ(s.rel);
+      const idx = st.suggest.indexOf(s);
+      return `<div class="ag-row is-suggest"><svg class="elle-icon" style="width:13px;height:13px"><use href="#elle-icon"></use></svg><span class="ag-t">${q ? `Decide: ${q.title}` : s.t}<span class="ag-why">${q ? `In your queue. ${q.why}` : s.why}</span></span><a data-sadd="${idx}">Add</a><a class="muted-link" data-sdis="${idx}">Dismiss</a></div>`;
+    }),
+  ].join('');
+
+  const owners = people.map(p => `<option value="${p}">${firstName(p)}</option>`).join('');
+  const noteRows = st.notes.map((n, k) => `<label class="note-row ${n.done ? 'is-done' : ''}"><input type="checkbox" data-note="${k}" ${n.done ? 'checked' : ''}><span class="nt">${n.t}</span><span class="owner">${n.o === 'You' || n.o === 'you' ? face('you', 's16') + 'You' : face(n.o, 's16') + n.o}</span><span class="since">${n.since}</span></label>`).join('');
+
+  const prevRows = st.prev.map((p, k) => {
+    const open = st.openPrev === k;
+    const first = p.discussed[0] || 'No notes taken';
+    const count = p.discussed.length + p.notes.length;
+    return `<div class="prev ${open ? 'is-open' : ''} ${count ? '' : 'is-empty'}">
+      <button class="prev-head" data-prev="${k}"><span class="pd">${p.date}</span><span class="pa">${p.ago}</span><span class="pf">${open && count ? '' : first}</span><span class="pc"></span></button>
+      ${open && count ? `<div class="prev-body"><div class="sum-by"><svg class="elle-icon" style="width:12px;height:12px"><use href="#elle-icon"></use></svg>Summary by Elle</div>${p.discussed.length ? `<div class="pb-h">Discussed</div><ul>${p.discussed.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}${p.notes.length ? `<div class="pb-h">Notes</div><ul>${p.notes.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}<a class="note-link" data-note-link="${p.date}">Meeting note &rarr;</a></div>` : ''}
+    </div>`;
+  }).join('') || '<div class="meet-empty">No earlier meetings.</div>';
+
+  pane.innerHTML = `
+    <div class="mp-bar">
+      <span class="muted-s">Meeting</span><span class="spacer"></span>
+      ${m.past ? '' : `<button class="btn btn-secondary btn-small" id="join">${isZoom ? 'Join on Zoom' : 'Open in calendar'}</button>`}
+      <span class="menu-wrap"><button class="btn btn-icon" id="mp-more" title="More">&middot;&middot;&middot;</button>
+        <div class="mp-menu" id="mp-menu">
+          <a data-menu="full">${meetFull ? 'Back to list' : 'Open as full page'}</a>
+          ${isZoom ? '<a data-menu="copy">Copy Zoom link</a>' : ''}
+          <a data-menu="clear">Clear agenda</a>
+        </div></span>
+    </div>
+    <h2 class="mp-title">${m.n}</h2>
+    <div class="when">${m.day}, ${m.t} to ${ENDS[m.t] || ''} &middot; ${m.c}</div>
+    <button class="people-line-btn ${st.peopleOpen ? 'is-open' : ''}" id="people-toggle">
+      ${st.peopleOpen ? '' : `<span class="faces">${people.map(p => face(p, 's16')).join('')}</span>`}
+      <span>${people.map(firstName).join(', ')}</span><span class="caret">&#9662;</span>
+    </button>
+    ${st.peopleOpen ? `<div class="person-cards">${people.map(p => `<div class="person-card">${face(p, 's32')}<div><b>${p === 'you' ? 'You' : PEOPLE[p].name}</b><span>${ROLES[p]}. ${BIOS[p].replace(ROLES[p] + ' ', '')}</span></div></div>`).join('')}</div>` : ''}
+    <div class="tabs mp-tabs">
+      <a class="tab ${st.tab === 'today' ? 'is-active' : ''}" data-tab="today">Today's meeting</a>
+      <a class="tab ${st.tab === 'prev' ? 'is-active' : ''}" data-tab="prev">Previous meetings <span class="tab-count">${st.prev.length}</span></a>
+    </div>
+    ${st.tab === 'today' ? `
+      <div class="mp-sec-head"><h4>Agenda</h4><span class="spacer"></span><button class="btn btn-ai btn-small" id="suggest">Suggest items</button></div>
+      <div class="agenda">${agendaRows}</div>
+      <input class="input add-line" id="ag-add" placeholder="Add an agenda item, then press Enter">
+      <div class="mp-sec-head"><h4>Notes</h4><span class="muted-s">${openNotes} open</span></div>
+      <div class="notes">${noteRows || '<div class="meet-empty">No notes yet.</div>'}</div>
+      <div class="add-note"><input class="input add-line" id="note-add" placeholder="Add a note, then press Enter"><select class="input owner-pick" id="note-owner">${owners}</select></div>`
+    : `<div class="prev-list">${prevRows}</div>`}`;
+
+  const $p = sel => pane.querySelector(sel);
+  const $$p = sel => [...pane.querySelectorAll(sel)];
+  const rerender = () => renderMeetingPane();
+  const join = $p('#join');
+  if (join) join.onclick = () => toast(isZoom ? `Opening Zoom for ${m.n}.` : `Opening ${m.n} in your calendar.`);
+  $p('#mp-more').onclick = e => { e.stopPropagation(); $p('#mp-menu').classList.toggle('is-open'); };
+  $$p('[data-menu]').forEach(a => a.onclick = () => {
+    const what = a.dataset.menu;
+    if (what === 'full') { meetFull = !meetFull; document.getElementById('view-meetings').classList.toggle('is-full', meetFull); rerender(); }
+    if (what === 'copy') toast('Zoom link copied.');
+    if (what === 'clear') {
+      const before = { agenda: st.agenda, reviewDone: st.reviewDone };
+      st.agenda = []; st.reviewDone = false; rerender();
+      toast('Agenda cleared.', () => { st.agenda = before.agenda; st.reviewDone = before.reviewDone; rerender(); });
+    }
+  });
+  $p('#people-toggle').onclick = () => { st.peopleOpen = !st.peopleOpen; rerender(); };
+  $$p('[data-tab]').forEach(t => t.onclick = () => { st.tab = t.dataset.tab; rerender(); });
+  $$p('[data-prev]').forEach(b => b.onclick = () => { const k = +b.dataset.prev; st.openPrev = st.openPrev === k ? -1 : k; rerender(); });
+  $$p('[data-note-link]').forEach(l => l.onclick = () => toast(`Opening the ${l.dataset.noteLink} meeting note.`));
+  if (st.tab !== 'today') return;
+
+  $$p('[data-ag]').forEach(c => c.onchange = () => { if (c.dataset.ag === 'review') st.reviewDone = c.checked; else st.agenda[+c.dataset.ag].done = c.checked; rerender(); });
+  $$p('[data-agx]').forEach(b => b.onclick = e => { e.preventDefault(); st.agenda.splice(+b.dataset.agx, 1); rerender(); });
+  $$p('[data-open]').forEach(a => a.onclick = e => { e.preventDefault(); openDrawer(a.dataset.open, a.closest('.ag-row')); });
+  $$p('[data-sadd]').forEach(a => a.onclick = () => { const s = st.suggest[+a.dataset.sadd]; st.suggest.splice(+a.dataset.sadd, 1); st.agenda.push(s.rel ? { rel: s.rel } : { t: s.t }); rerender(); });
+  $$p('[data-sdis]').forEach(a => a.onclick = () => { st.suggest.splice(+a.dataset.sdis, 1); rerender(); });
+  $p('#suggest').onclick = () => {
+    if (st.more.length) { st.suggest.push(...st.more); st.more = []; rerender(); toast('Elle added suggestions. Add the ones you want.'); }
+    else toast('Elle has nothing new to suggest for this meeting.');
+  };
+  $p('#ag-add').onkeydown = e => { if (e.key === 'Enter' && e.target.value.trim()) { st.agenda.push({ t: e.target.value.trim() }); rerender(); pane.querySelector('#ag-add').focus(); } };
+  $$p('[data-note]').forEach(c => c.onchange = () => { st.notes[+c.dataset.note].done = c.checked; rerender(); });
+  $p('#note-add').onkeydown = e => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      const o = $p('#note-owner').value;
+      st.notes.push({ t: e.target.value.trim(), o: o === 'you' ? 'You' : o, since: 'Today', done: false });
+      rerender(); pane.querySelector('#note-add').focus();
+    }
+  };
+}
+document.addEventListener('click', () => document.getElementById('mp-menu')?.classList.remove('is-open'));
+
+function render() { renderStages(); renderQueue(); renderHandled(); }
+
+/* Drawer content. Every action shows what will happen, then does it. */
+const TOP10 = [
+  ['Mobile ticket wallet', 0, 92], ['Season ticket renewal reminders', 0, 88], ['Family ticket bundles', 1, 85],
+  ['Live score widget', 0, 81], ['Stadium maps', 0, 77], ['Guest ticket transfer limits', 1, 74],
+  ['Match day check-in fix', 1, 72], ['Merch pre-order', 0, 69], ['Accessible seating filter', 0, 66], ['Away fan travel info', 0, 61],
+];
+const SPRING = [
+  ['Season ticket renewal reminders', 21, 88, false], ['Mobile ticket wallet', 26, 92, false], ['Live score widget', 18, 81, false],
+  ['Guest ticket transfer limits', 13, 74, false], ['Merch pre-order', 15, 69, false],
+  ['Away fan travel info', 11, 61, true], ['Accessible seating filter', 14, 66, true],
+];
+const FOLLOWUP = ['Riverside Supporters Club', 'North Stand season members', 'Family pass panel', 'Accessibility forum', 'Away travel group', 'Student fans panel'];
+const elleHead = t => `<div class="ai-head"><svg class="elle-icon" style="width:14px;height:14px"><use href="#elle-icon"></use></svg>${t}</div>`;
+const $d = sel => document.querySelector('#drawer ' + sel);
+const $$d = sel => [...document.querySelectorAll('#drawer ' + sel)];
+const val = sel => ($d(sel)?.value || '').trim();
+function needText(sel, msg) {
+  const el = $d(sel);
+  if (val(sel)) return true;
+  el.classList.add('is-invalid'); el.placeholder = msg; el.focus();
+  setTimeout(() => el.classList.remove('is-invalid'), 1200);
+  return false;
+}
+
+function drawerHTML(q) {
+  const by = q.who === 'you' ? 'Waiting on you' : `From <b>${displayName(q.who)}</b>`;
+  const head = `<span class="stage-pill sp-${BAND[q.stage]}">${NAME[q.stage]}</span><h2>${q.title}</h2>
+    <div class="byline">${face(q.who, 's24')}<span>${by} &middot; ${q.kind.toLowerCase()} &middot; ${q.since}</span></div>`;
+
+  if (q.drawer === 'top10') return {
+    body: head + `<div class="ai-result">${elleHead('Why these 10')}
+      Ranked against the season goal, "Grow match day revenue per fan 8%." Family ticket bundles is new: 18 ideas and 2 interviews this month. Two features dropped off because they no longer support a goal.</div>
+      <h4>Suggested for this week <span class="h4-note">Uncheck any you disagree with</span></h4><div class="check-list" id="top10">${TOP10.map((f, i) => `<label class="ci"><input type="checkbox" checked><span class="rank">${i + 1}</span><span>${f[0]}${f[1] ? '<span class="pill is-purple new">New</span>' : ''}</span><span class="score-pill">${f[2]}</span></label>`).join('')}</div>
+      <div class="what-next" id="top10-next"></div>`,
+    foot: `<button class="btn btn-primary" data-act="agree">Agree</button><button class="btn" data-act="rerun">Rerun</button><input class="input" id="refine" placeholder="Refine: tell Matchday PM what to change"><button class="btn btn-ai" data-act="refine">Refine</button>`,
+    wire() {
+      const upd = () => {
+        const off = $$d('#top10 input').filter(c => !c.checked).length;
+        $$d('#top10 input').forEach(c => c.closest('.ci').classList.toggle('is-off', !c.checked));
+        $d('#top10-next').textContent = off
+          ? `Agree moves ${10 - off} features to the top of the features board and sends ${off} back to the backlog.`
+          : 'Agree moves all 10 to the top of the features board, in this order.';
+      };
+      $$d('#top10 input').forEach(c => c.onchange = upd); upd();
+    },
+    act: {
+      agree() { const n = $$d('#top10 input').filter(c => c.checked).length; return `Agreed on ${n}. They are at the top of the features board.`; },
+      rerun: () => 'Matchday PM is rerunning the ranking. The new list lands here in a few minutes.',
+      refine() { if (!needText('#refine', 'Say what to change first')) return false; return `Matchday PM is reranking: "${val('#refine')}"`; },
+    },
+  };
+
+  if (q.drawer === 'validate') return {
+    body: head + `<div class="ai-result">${elleHead('Validation agent summary')}
+      Checked against the spec, the approved prototype, and the goal it supports. 9 of 11 requirements match. Two need a person.</div>
+      <h4>Requirements</h4><div class="check-list">
+      <div class="ci"><span class="gap">&#10007;</span><span></span><span>Transfer limit message differs from the prototype</span><a data-toggle="cmp1">Compare</a></div>
+      <div class="cmp" id="cmp1"><div><span>Prototype</span>"You can transfer up to 4 tickets per match."</div><div><span>Build</span>"Transfer limit reached."</div></div>
+      <div class="ci"><span class="gap">&#10007;</span><span></span><span>Receipt email is missing the seat number the spec asked for</span><a data-toggle="cmp2">Compare</a></div>
+      <div class="cmp" id="cmp2"><div><span>Spec</span>Receipt shows section, row, and seat.</div><div><span>Build</span>Receipt shows section and row.</div></div>
+      <div class="ci"><span class="ok">&#10003;</span><span></span><span>9 more requirements match</span><a data-toggle="cmp3">Show</a></div>
+      <div class="cmp list" id="cmp3"><div>Transfer to a friend by email</div><div>Transfer to a friend by phone number</div><div>Recipient accepts in the app</div><div>Sender can cancel before acceptance</div><div>Tickets move to the recipient's wallet</div><div>Original barcode stops working</div><div>Season ticket holders can transfer</div><div>Transfers close 1 hour before kickoff</div><div>Both people get a confirmation</div></div>
+      </div>
+      <h4>Who is waiting</h4><div class="people-line">${face('Marcus', 's24')}<span><b style="font-weight:500">Marcus Reed</b>, since yesterday. The release ships Tuesday.</span></div>
+      <div class="what-next">Send back adds the 2 gaps as requirements on the feature and assigns them to Marcus.</div>`,
+    foot: `<button class="btn btn-primary" data-act="back">Send back with the 2 gaps</button><button class="btn" data-act="approve">Approve anyway</button><span class="spacer"></span><button class="btn btn-ghost" data-toast="Opening the staging build of ticket transfer in a new tab.">Open the build</button>`,
+    wire() { $$d('[data-toggle]').forEach(a => a.onclick = () => { const el = $d('#' + a.dataset.toggle); el.classList.toggle('is-open'); a.textContent = el.classList.contains('is-open') ? 'Hide' : (a.dataset.toggle === 'cmp3' ? 'Show' : 'Compare'); }); },
+    act: {
+      back: () => 'Sent back. Marcus has 2 new requirements on Ticket transfer.',
+      approve: () => 'Approved. Marcus can ship Tuesday. The 2 gaps are logged as follow-up ideas.',
+    },
+  };
+
+  if (q.drawer === 'theme') return {
+    body: head + `<div class="ai-result">${elleHead('What Elle found')}
+      Requests doubled since September. Most come from parents buying 3 or more tickets per match. 5 of the 18 ideas come from season ticket holders up for renewal.
+      <ul><li>18 ideas on the Matchday portal</li><li>4 support threads about group checkout</li><li>2 customer interviews mention it unprompted</li></ul></div>
+      <h4>What each choice does</h4><dl class="choices">
+      <dt>Create an epic</dt><dd>New epic, Family ticket bundles, in the Matchday app workspace with all 18 ideas linked. It joins next week's ranking.</dd>
+      <dt>Merge into Group tickets</dt><dd>Links the 18 ideas to the existing Group tickets epic. No new work is planned.</dd>
+      <dt>Watch for 30 days</dt><dd>Elle keeps counting and brings it back if requests keep growing.</dd></dl>`,
+    foot: `<button class="btn btn-primary" data-act="epic">Create an epic</button><button class="btn" data-act="merge">Merge into Group tickets</button><button class="btn" data-act="watch">Watch for 30 days</button>`,
+    act: {
+      epic: () => 'Created the Family ticket bundles epic with 18 ideas linked.',
+      merge: () => 'Merged. 18 ideas now link to Group tickets.',
+      watch: () => 'Watching. Elle will bring family ticket bundles back if it keeps growing.',
+    },
+  };
+
+  if (q.drawer === 'options') return {
+    body: head + `<div class="ai-result">${elleHead('Two options from the coding agent')}
+      Both pass the tests. The difference is cost and how fresh the scores are.</div>
+      <h4>Options</h4><div class="check-list">
+      <label class="ci"><input type="radio" name="opt" value="current" checked><span></span><span><b style="font-weight:500">Current stats feed.</b> Scores update every 30 seconds. No new cost.</span><span></span></label>
+      <label class="ci"><input type="radio" name="opt" value="vendor"><span></span><span><b style="font-weight:500">New vendor feed.</b> Live scores in under 2 seconds. Needs a contract.</span><span></span></label></div>
+      <div class="what-next" id="opt-next"></div>`,
+    foot: `<button class="btn btn-primary" data-act="build">Build with this option</button><button class="btn" data-act="defer">Defer a week</button>`,
+    wire() {
+      const upd = () => { $d('#opt-next').textContent = $d('input[name=opt]:checked').value === 'current'
+        ? 'The coding agent finishes the widget on the current feed and opens it for validation today.'
+        : 'The coding agent pauses the widget and adds a to-do for you to start the vendor contract.'; };
+      $$d('input[name=opt]').forEach(r => r.onchange = upd); upd();
+    },
+    act: {
+      build: () => $d('input[name=opt]:checked').value === 'current'
+        ? 'Building on the current feed. It goes to validation today.'
+        : 'Paused for the vendor contract. You have a to-do to start it.',
+      defer: () => 'Deferred. The coding agent asks again next Thursday.',
+    },
+  };
+
+  if (q.drawer === 'reply') return {
+    body: head + `<h4>Priya's comment</h4><div class="people-line" style="align-items:flex-start">${face('Priya', 's24')}<div><b style="font-weight:500">Priya Shah</b> on Merch store roadmap<div style="margin-top:4px">"Can we hold March 3 if returns slip a sprint?"</div></div></div>
+      <h4>Your reply <span class="h4-note">Elle drafted it. Edit before you send.</span></h4>
+      <textarea class="textarea ai-draft" id="reply" rows="4">Yes. Returns is not on the launch path. If it slips, we ship the kit on March 3 and add returns in the next release.</textarea>
+      <div class="what-next">Posts as a reply on Priya's comment and notifies her.</div>`,
+    foot: `<button class="btn btn-primary" data-act="send">Send reply</button>`,
+    act: { send() { if (!needText('#reply', 'Write a reply first')) return false; return 'Replied to Priya on the Merch store roadmap.'; } },
+  };
+
+  if (q.drawer === 'insight') return {
+    body: head + `<h4>Match day check-in, last 14 days</h4>
+      <div class="funnel">
+        <div class="f-row"><span>Open the app</span><div class="bar"><i style="width:100%"></i></div><b>100%</b></div>
+        <div class="f-row is-bad"><span>Sign in</span><div class="bar"><i style="width:71%"></i><em style="left:77%"></em></div><b>71% <small>was 77%</small></b></div>
+        <div class="f-row"><span>Show ticket</span><div class="bar"><i style="width:64%"></i><em style="left:70%"></em></div><b>64% <small>was 70%</small></b></div>
+      </div>
+      <h4>Idea Matchday PM drafted <span class="h4-note">Edit before you create it</span></h4>
+      <input class="input" id="idea-title" value="Keep fans signed in on match day">
+      <div class="ai-result" style="margin-top:8px">${elleHead('Why')}The new sign-in asks for a code every visit. Fans who stay signed in skip that step. Similar apps keep match day sessions for 24 hours.</div>
+      <div class="what-next">Creates the idea in Matchday app and links it to the check-in analytics.</div>`,
+    foot: `<button class="btn btn-primary" data-act="create">Create the idea</button><button class="btn" data-act="dismiss">Not now</button>`,
+    act: {
+      create() { if (!needText('#idea-title', 'Give the idea a name')) return false; return `Idea created: ${val('#idea-title')}.`; },
+      dismiss: () => 'Dismissed. Matchday PM will flag it again if the drop grows.',
+    },
+  };
+
+  if (q.drawer === 'report') return {
+    body: head + `<h4>The draft</h4>
+      <div class="report">
+        <div class="r-sec"><b>Season goal</b>Match day revenue per fan is up 5.2%, against a goal of 8%.</div>
+        <div class="r-sec"><b>Shipped in November</b>Mobile ticket wallet and merch pre-order.</div>
+        <div class="r-sec"><b>Renewals</b>82% of season ticket holders renewed, up from 76%.</div>
+        <div class="r-sec"><b>At risk</b>The Spring release is 18 points over capacity.</div>
+      </div>
+      <h4>Change anything?</h4><input class="input" id="report-change" placeholder="Tell Elle what to change">
+      <div class="what-next">Approve shares the report with Nina and marks your to-do complete.</div>`,
+    foot: `<button class="btn btn-primary" data-act="approve">Approve and share with Nina</button><button class="btn btn-ai" data-act="revise">Ask Elle to change it</button>`,
+    act: {
+      approve: () => 'Shared with Nina. Your to-do is complete.',
+      revise() { if (!needText('#report-change', 'Say what to change first')) return false; return `Elle is revising the report: "${val('#report-change')}"`; },
+    },
+  };
+
+  if (q.drawer === 'nudge') return {
+    body: head + `<h4>What is stuck</h4>
+      <div class="facts"><div><span>Feature</span>Season ticket renewal reminders</div><div><span>Built</span>4 days ago by Marcus</div><div><span>Waiting on</span>Priya's PM review</div><div><span>Ships</span>Spring release, March 3</div></div>
+      <h4>Message to Priya <span class="h4-note">Elle drafted it</span></h4>
+      <textarea class="textarea ai-draft" id="nudge" rows="4">Hi Priya, renewal reminders has been ready for review for 4 days and Marcus is waiting to ship. Can you take a look today? If you are swamped, I can review it.</textarea>
+      <div class="what-next">Posts as a comment on the feature with an @mention, so Priya gets a notification.</div>`,
+    foot: `<button class="btn btn-primary" data-act="send">Send to Priya</button><button class="btn" data-act="take">Review it myself</button>`,
+    act: {
+      send() { if (!needText('#nudge', 'Write a message first')) return false; return 'Sent. Priya got a mention on Season ticket renewal reminders.'; },
+      take() {
+        QUEUE.mine.push({ id: 'q8', stage: 'validate', kind: 'Approval', title: 'Review season ticket renewal reminders', why: 'You took this over from Priya. Marcus built it 4 days ago.', who: 'Marcus', since: '4 days', late: true, act: 'Review it', drawer: 'generic', done: 'Reviewed. Marcus can ship.' });
+        return 'The review is yours now. It is in Mine.';
+      },
+    },
+  };
+
+  if (q.drawer === 'capacity') return {
+    body: head + `<div class="cap"><div class="cap-bar"><i id="cap-fill"></i><em></em></div><div class="cap-num" id="cap-num"></div></div>
+      <h4>Spring release features <span class="h4-note">Checked features move to the Summer release</span></h4>
+      <div class="check-list" id="spring">${SPRING.map(f => `<label class="ci"><input type="checkbox" ${f[3] ? 'checked' : ''} data-pts="${f[1]}"><span></span><span>${f[0]}${f[3] ? ' <span class="pill is-purple new">Suggested</span>' : ''}</span><span class="pts">${f[1]} pts</span></label>`).join('')}</div>
+      <div class="what-next" id="cap-next"></div>`,
+    foot: `<button class="btn btn-primary" data-act="move">Move to Summer release</button><button class="btn" data-act="leave">Leave it with Sam</button>`,
+    wire() {
+      const upd = () => {
+        const total = SPRING.reduce((a, f) => a + f[1], 0);
+        const moved = $$d('#spring input').filter(c => c.checked);
+        const left = total - moved.reduce((a, c) => a + +c.dataset.pts, 0);
+        $d('#cap-fill').style.width = Math.min(100, left / 1.18) + '%';
+        $d('#cap-fill').classList.toggle('is-over', left > 100);
+        $d('#cap-num').innerHTML = `<b>${left}</b> of 100 points${left > 100 ? ` <span class="gap">${left - 100} over</span>` : ' <span class="ok">fits</span>'}`;
+        $d('#cap-next').textContent = moved.length ? `Moves ${moved.length} feature${moved.length > 1 ? 's' : ''} to the Summer release and tells Sam.` : 'Check a feature to move it.';
+      };
+      $$d('#spring input').forEach(c => c.onchange = upd); upd();
+    },
+    act: {
+      move() {
+        const moved = $$d('#spring input').filter(c => c.checked);
+        if (!moved.length) return false;
+        const left = SPRING.reduce((a, f) => a + f[1], 0) - moved.reduce((a, c) => a + +c.dataset.pts, 0);
+        return `Moved ${moved.length} to Summer. Spring is at ${left} of 100 points.`;
+      },
+      leave: () => 'Left with Sam. It comes back here if it is not settled by Monday.',
+    },
+  };
+
+  if (q.drawer === 'followup') return {
+    body: head + `<h4>Who has it</h4><div class="check-list">${FOLLOWUP.map(c => `<label class="ci"><input type="checkbox" checked><span></span><span>${c}</span><span class="muted-s">Not opened</span></label>`).join('')}</div>
+      <h4>Follow-up <span class="h4-note">Elle drafted it</span></h4>
+      <textarea class="textarea ai-draft" id="follow" rows="3">Quick nudge on the stadium maps prototype we sent last week. Two minutes of feedback helps us decide what ships for match day.</textarea>
+      <div class="what-next">Elle sends it from Elena's name. Replies land as feedback on the prototype.</div>`,
+    foot: `<button class="btn btn-primary" data-act="send">Send follow-ups</button><button class="btn" data-act="call">Ask Elena to call 2</button>`,
+    act: {
+      send() { const n = $$d('.check-list input').filter(c => c.checked).length; if (!n) return false; return `Elle sent ${n} follow-ups from Elena.`; },
+      call: () => 'Elena has a to-do to call 2 customers by Friday.',
+    },
+  };
+
+  return {
+    body: head + `<div class="ai-result">${elleHead('Context')}${q.why}</div>`,
+    foot: `<button class="btn btn-primary" data-act="do">${q.act}</button><button class="btn" data-act="defer">Defer</button>`,
+    act: { do: () => q.done, defer: () => 'Deferred to tomorrow.' },
+  };
+}
+
+const drawer = document.getElementById('drawer');
+let toastTimer, undoFn = null;
+function toast(text, undo) {
+  undoFn = undo || null;
+  document.getElementById('toast-text').textContent = text;
+  document.getElementById('toast-undo').style.display = undo ? '' : 'none';
+  const t = document.getElementById('toast');
+  t.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('is-on'), 5000);
+}
+function showDrawer(kind, body, foot, el) {
+  document.querySelectorAll('.row-item.is-selected').forEach(r => r.classList.remove('is-selected'));
+  if (el) el.classList.add('is-selected');
+  document.getElementById('d-kind').textContent = kind;
+  document.getElementById('d-body').innerHTML = body;
+  document.getElementById('d-foot').innerHTML = foot;
+  $$d('[data-toast]').forEach(b => b.onclick = () => toast(b.dataset.toast));
+  drawer.classList.add('is-open');
+}
+function openDrawer(id, el) {
+  const q = [...QUEUE.mine, ...QUEUE.team].find(x => x.id === id);
+  const d = drawerHTML(q);
+  showDrawer(q.kind, d.body, d.foot, el);
+  if (d.wire) d.wire();
+  $$d('[data-act]').forEach(b => b.onclick = () => {
+    const msg = d.act[b.dataset.act]();
+    if (msg === false) return;
+    closeDrawer();
+    el.classList.add('is-leaving');
+    setTimeout(() => {
+      cleared.add(id); render(); renderMeetingPane();
+      toast(msg, () => { cleared.delete(id); if (b.dataset.act === 'take' && q.drawer === 'nudge') QUEUE.mine = QUEUE.mine.filter(x => x.id !== 'q8'); render(); renderMeetingPane(); });
+    }, 250);
+  });
+}
+function openAudit(i, el) {
+  const h = HANDLED[i];
+  showDrawer('Done by an agent', `<span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span><h2>${h.title}</h2>
+    <div class="byline">${face(h.who, 's24')}<span>${h.who} &middot; today at ${h.when}${h.undone ? ' &middot; <b class="gap">Undone</b>' : ''}</span></div>
+    <h4>What changed</h4><div class="check-list">${(h.changes || [h.title]).map(c => `<div class="ci"><span class="ok">&#10003;</span><span></span><span>${c}</span><span></span></div>`).join('')}</div>
+    <h4>Why it did not ask you</h4><div class="ai-result">${elleHead(h.who)}${h.why}</div>`,
+    h.undone ? `<span class="muted-s">This was undone.</span>` : `<button class="btn" data-audit="undo">Undo</button><button class="btn btn-ghost" data-audit="keep">Looks right</button>`, el);
+  $$d('[data-audit]').forEach(b => b.onclick = () => {
+    closeDrawer();
+    if (b.dataset.audit === 'keep') return toast(`Thanks. ${h.who} will keep doing this on its own.`);
+    h.undone = true; renderHandled(); renderStages();
+    toast(h.undoMsg || 'Undone.', () => { h.undone = false; renderHandled(); renderStages(); });
+  });
+}
+function openAllActivity() {
+  const live = HANDLED.filter(h => !h.undone);
+  const by = a => live.filter(h => h.who === a).length;
+  showDrawer('Done by agents', `<h2>${live.length} actions today</h2><div class="byline">Nothing needed you. Open any one to see what changed or undo it.</div>
+    <h4>By agent</h4><div class="facts"><div><span>Matchday PM</span>${by('Matchday PM')} actions</div><div><span>Validation agent</span>${by('Validation agent')} actions</div><div><span>Coding agent</span>${by('Coding agent')} actions</div></div>
+    <h4>Newest first</h4><div class="rows">${HANDLED.map((h, i) => `<div class="row-item ${h.undone ? 'is-undone' : ''}" data-all="${i}"><div><span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span></div><div><div class="title">${h.title}</div></div><div class="who">${face(h.who, 's16')}<span>${h.when}</span></div></div>`).join('')}</div>`,
+    `<button class="btn" data-toast="Exported ${live.length} actions to CSV.">Export</button>`);
+  $$d('[data-all]').forEach(r => r.onclick = () => openAudit(+r.dataset.all, r));
+}
+function closeDrawer() { drawer.classList.remove('is-open'); document.querySelectorAll('.row-item.is-selected').forEach(r => r.classList.remove('is-selected')); }
+document.getElementById('toast-undo').onclick = () => {
+  if (undoFn) { undoFn(); undoFn = null; }
+  document.getElementById('toast').classList.remove('is-on');
+};
+document.getElementById('drawer-close').onclick = closeDrawer;
+/* To-dos and Notifications tabs. */
+const TODO_LIST = [
+  { t: 'Send Nina one number for revenue per fan', due: 'Today', from: 'Season planning with Nina' },
+  { t: 'Approve the November board report', due: 'Fri', rel: 'q7', from: 'Nina' },
+  { t: 'Review notes from Ticket transfer design review', due: 'Today', from: 'Meeting' },
+  { t: 'Intro Elena to the supporters club lead', due: 'Mon', from: '1:1 with Elena' },
+  { t: 'Read the stadium maps interview summary', due: 'Next week', from: 'Matchday PM' },
+];
+let notifMode = 'matter';
+const NOTIF_FYI = [
+  { who: 'Matchday PM', text: 'Matchday PM merged 9 duplicate ideas into Mobile ticket wallet', when: '8:12am', handled: true },
+  { who: 'Validation agent', text: 'Validation agent passed 3 copy fixes on the shop page', when: '9:40am', handled: true },
+  { who: 'Marcus', text: 'Marcus commented on Live score widget', when: 'Yesterday', handled: false },
+  { who: 'Coding agent', text: 'Coding agent moved 2 release dates to match Jira', when: '10:05am', handled: true },
+];
+
+function renderTodos() {
+  const open = TODO_LIST.filter(t => !t.done).length;
+  document.getElementById('todo-count').textContent = open;
+  const groups = [['Today', t => t.due === 'Today'], ['This week', t => ['Fri', 'Mon'].includes(t.due)], ['Later', t => !['Today', 'Fri', 'Mon'].includes(t.due)]];
+  document.getElementById('view-todos').innerHTML = `
+    <div class="sec-head"><h3>To-dos</h3><span class="meta">${open} open</span></div>
+    <div class="add-note" style="margin-bottom:16px"><input class="input add-line" id="todo-new" placeholder="Add a to-do, then press Enter"></div>
+    ${groups.map(([g, fn]) => { const items = TODO_LIST.map((t, k) => [t, k]).filter(([t]) => fn(t)); return items.length ? `
+      <div class="todo-group">${g}</div>
+      <div class="rows">${items.map(([t, k]) => `<label class="note-row ${t.done ? 'is-done' : ''}"><input type="checkbox" data-td="${k}" ${t.done ? 'checked' : ''}><span class="nt">${t.t}${t.rel && !cleared.has(t.rel) ? ` <a class="ag-open" data-td-open="${t.rel}">Open</a>` : ''}</span><span class="muted-s">${t.from}</span><span class="since">${t.due}</span></label>`).join('')}</div>` : ''; }).join('')}`;
+  const v = document.getElementById('view-todos');
+  v.querySelectorAll('[data-td]').forEach(c => c.onchange = () => {
+    const t = TODO_LIST[+c.dataset.td]; t.done = c.checked; renderTodos();
+    if (t.done) toast(`Completed: ${t.t}.`, () => { t.done = false; renderTodos(); });
+  });
+  v.querySelectorAll('[data-td-open]').forEach(a => a.onclick = e => { e.preventDefault(); openDrawer(a.dataset.tdOpen, a.closest('.note-row')); });
+  v.querySelector('#todo-new').onkeydown = e => {
+    if (e.key === 'Enter' && e.target.value.trim()) { TODO_LIST.unshift({ t: e.target.value.trim(), due: 'Today', from: 'You' }); renderTodos(); document.getElementById('todo-new').focus(); }
+  };
+}
+
+function renderNotifs() {
+  const needs = NOTIFS.map((n, k) => ({ ...n, k }));
+  const rows = list => list.map(n => `<div class="row-item notif ${n.read ? 'is-read' : ''}" ${n.k !== undefined ? `data-nf="${n.k}"` : ''}><div>${face(n.who)}</div><div><div class="title">${n.text}</div><div class="why">${n.handled ? 'Handled by an agent' : n.rel && !cleared.has(n.rel) ? 'In your decisions' : n.rel ? 'Done' : 'For your information'}</div></div><div class="who">${n.when}</div></div>`).join('');
+  document.getElementById('view-notifs').innerHTML = `
+    <div class="sec-head"><h3>Notifications</h3><span class="meta">${notifMode === 'matter' ? '14 for you. The other 506 need nothing from you.' : 'All 520, newest first'}</span><span class="spacer"></span>
+      <span class="segmented" id="notif-mode"><button data-nm="matter" class="${notifMode === 'matter' ? 'is-active' : ''}">For you</button><button data-nm="all" class="${notifMode === 'all' ? 'is-active' : ''}">All</button></span>
+      <button class="btn btn-small" id="notif-read">Mark all as read</button></div>
+    <div class="rows">${rows(needs)}${notifMode === 'all' ? rows(NOTIF_FYI) + '<div class="empty">And 510 more like these. Agents acted on most of them.</div>' : ''}</div>`;
+  const v = document.getElementById('view-notifs');
+  v.querySelectorAll('[data-nm]').forEach(b => b.onclick = () => { notifMode = b.dataset.nm; renderNotifs(); });
+  v.querySelector('#notif-read').onclick = () => { NOTIFS.forEach(n => n.read = true); renderNotifs(); document.getElementById('notif-count').textContent = '0'; toast('Marked all as read.'); };
+  v.querySelectorAll('[data-nf]').forEach(r => r.onclick = () => {
+    const n = NOTIFS[+r.dataset.nf]; n.read = true; r.classList.add('is-read');
+    if (n.rel && !cleared.has(n.rel)) openDrawer(n.rel, r); else toast(n.rel ? 'Already done.' : 'Opening the Spring release.');
+  });
+}
+
+
+const VIEWS = { decisions: 'view-work', meetings: 'view-meetings', todos: 'view-todos', notifications: 'view-notifs' };
+function setView(next) {
+  document.querySelectorAll('.page-tabs [data-view]').forEach(t => t.classList.toggle('is-active', t.dataset.view === next));
+  Object.entries(VIEWS).forEach(([k, id]) => document.getElementById(id).classList.toggle('hidden', k !== next));
+  document.getElementById('scope-wrap').classList.toggle('hidden', next !== 'decisions');
+  if (next === 'todos') renderTodos();
+  if (next === 'notifications') renderNotifs();
+  setNavActive('today');
+  closeDrawer();
+}
+function setScope(next) {
+  document.querySelectorAll('#scope button').forEach(x => x.classList.toggle('is-active', x.dataset.scope === next));
+  closeDrawer(); scope = next; filter = null; render();
+}
+document.querySelectorAll('.page-tabs [data-view]').forEach(t => t.onclick = () => setView(t.dataset.view));
+document.querySelectorAll('#scope button').forEach(b => b.onclick = () => setScope(b.dataset.scope));
+document.getElementById('see-all').onclick = openAllActivity;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+document.addEventListener('mousedown', e => {
+  if (!drawer.classList.contains('is-open')) return;
+  if (e.target.closest('#drawer, .toast')) return;
+  closeDrawer();
+});
+
+/* Left nav, header, and top nav. Everything a reviewer can click does something. */
+const AGENTS = {
+  'Matchday PM': { role: 'AI PM for Matchday app, set up by you', job: 'Keeps the backlog ranked against the season goal, turns feedback into themes, and drafts the monthly report. Asks before it changes a roadmap.', level: 1, rate: 82 },
+  'Validation agent': { role: 'Checks builds against the spec and the approved prototype', job: 'Reviews every build before release. Passes small changes that match the spec and sends anything bigger to a person.', level: 2, rate: 94 },
+  'Coding agent': { role: 'Builds small fixes and options for engineering', job: 'Opens pull requests for small fixes, keeps release dates in sync with Jira, and builds options when a choice needs a person.', level: 0, rate: 71 },
+};
+const LEVELS = ['Suggest', 'Act with sign-off', 'On its own'];
+const paused = new Set();
+function setNavActive(key) { document.querySelectorAll('.nav-sidebar__item').forEach(n => n.classList.toggle('is-active', n.dataset.nav === key)); }
+
+/* Agent drawer: Chat with the agent, or change its Settings. */
+const AGENT_CHAT = {
+  'Matchday PM': {
+    hello: 'Morning. I ranked this week\'s top 10 and found one new theme: family ticket bundles. What do you want to dig into?',
+    ask: {
+      'Why is family ticket bundles ranked 3rd?': { text: 'Requests doubled since September: 18 ideas, 4 support threads, and 2 interviews. 5 of the ideas come from season ticket holders up for renewal, and it supports the revenue per fan goal.', rel: 'q3', relLabel: 'Open the theme' },
+      'What did you change on your own today?': { text: () => `${HANDLED.filter(h => h.who === 'Matchday PM' && !h.undone).length} things. The biggest: I merged 9 duplicate ideas into Mobile ticket wallet and reranked the features board. Each one is in Done by agents if you want to undo it.` },
+      'Draft a one-pager on family ticket bundles': { text: 'Drafted. It covers the demand, the 3 fan segments asking for it, and a first cut you could ship in the Summer release. I added it to your agenda for season planning with Nina.' },
+    },
+    fallback: t => `On it. I\'ll look into "${t}" and post what I find here.`,
+  },
+  'Validation agent': {
+    hello: 'I checked 12 builds today and passed 11. Ticket transfer has 2 gaps waiting on you.',
+    ask: {
+      'Show me the 2 gaps': { text: 'The transfer limit message differs from the prototype, and the receipt email is missing the seat number the spec asked for. Everything else matches.', rel: 'q2', relLabel: 'Review the gaps' },
+      'What do you pass without asking?': { text: 'Copy changes under 20 words, visual changes that match the approved prototype, and builds under 50 lines that meet every requirement. Anything bigger goes to you.' },
+      'Check stadium maps against the prototype': { text: 'Done. 6 of 7 screens match. The empty state is missing, so I asked Elena about it on the feature.' },
+    },
+    fallback: t => `I\'ll check "${t}" on the next build and report back here.`,
+  },
+  'Coding agent': {
+    hello: 'The live score widget is waiting on your feed choice. Everything else is moving.',
+    ask: {
+      'Compare the two feed options': { text: 'Both pass the tests. The current feed is free and updates every 30 seconds. The new vendor feed is live in under 2 seconds but needs a contract.', rel: 'q4', relLabel: 'Pick an option' },
+      'What is in today\'s pull request?': { text: 'The seat filter fix: 38 changed lines across 3 files. The validation agent already passed it.' },
+      'Fix the receipt seat number': { text: 'Opened a pull request that adds the seat number to the receipt email. It goes to the validation agent next.' },
+    },
+    fallback: t => `Got it. I\'ll scope "${t}" and open a pull request if it is small.`,
+  },
+};
+const chats = {};
+function openAgent(name, el, tab = 'chat') {
+  const a = AGENTS[name], c = AGENT_CHAT[name];
+  if (!chats[name]) chats[name] = [{ from: 'agent', text: c.hello }];
+  const acts = HANDLED.map((h, i) => [h, i]).filter(([h]) => h.who === name);
+  const msgHTML = m => m.from === 'you'
+    ? `<div class="msg you">${m.text}</div>`
+    : `<div class="msg agent">${face(name, 's24')}<div class="bubble">${m.text}${m.rel && !cleared.has(m.rel) ? `<a class="msg-link" data-msgrel="${m.rel}">${m.relLabel} &rsaquo;</a>` : ''}</div></div>`;
+  const draw = () => {
+    const head = `<div class="agent-head">${face(name, 's32')}<div><h2 style="margin:0">${name}</h2><div class="byline" style="margin:2px 0 0">${a.role}${paused.has(name) ? ' &middot; <b class="gap">Paused</b>' : ''}</div></div></div>
+      <div class="tabs agent-tabs"><a class="tab ${tab === 'chat' ? 'is-active' : ''}" data-atab="chat">Chat</a><a class="tab ${tab === 'settings' ? 'is-active' : ''}" data-atab="settings">Settings</a></div>`;
+    if (tab === 'chat') {
+      const asked = new Set(chats[name].filter(m => m.from === 'you').map(m => m.text));
+      const prompts = Object.keys(c.ask).filter(q => !asked.has(q));
+      showDrawer('Agent', head + `
+        ${paused.has(name) ? '<div class="what-next">It is paused. It reads your messages but will not act until you resume it in Settings.</div>' : ''}
+        <div class="chat" id="chat">${chats[name].map(msgHTML).join('')}</div>
+        ${prompts.length ? `<div class="elle-chips chat-chips">${prompts.map(q => `<button class="btn btn-small" data-cq="${q}">${q}</button>`).join('')}</div>` : ''}`,
+        `<input class="input" id="chat-input" placeholder="Message ${name}" style="flex:1"><button class="btn btn-primary" id="chat-send">Send</button>`, el);
+      const scroll = () => { const s = document.querySelector('#drawer .drawer__scroll'); s.scrollTop = s.scrollHeight; };
+      scroll();
+      const send = text => {
+        if (!text) return;
+        chats[name].push({ from: 'you', text });
+        const r = c.ask[text];
+        draw();
+        $d('#chat').insertAdjacentHTML('beforeend', `<div class="msg agent typing">${face(name, 's24')}<div class="bubble"><i></i><i></i><i></i></div></div>`);
+        scroll();
+        setTimeout(() => {
+          chats[name].push(r ? { from: 'agent', text: typeof r.text === 'function' ? r.text() : r.text, rel: r.rel, relLabel: r.relLabel } : { from: 'agent', text: c.fallback(text) });
+          if (tab === 'chat' && drawer.classList.contains('is-open') && $d('#chat')) { draw(); $d('#chat-input').focus(); }
+        }, 700);
+      };
+      $$d('[data-cq]').forEach(b => b.onclick = () => send(b.dataset.cq));
+      $d('#chat-send').onclick = () => send(val('#chat-input'));
+      $d('#chat-input').onkeydown = e => { if (e.key === 'Enter') send(val('#chat-input')); };
+      $$d('[data-msgrel]').forEach(l => l.onclick = () => openDrawer(l.dataset.msgrel, l));
+    } else {
+      showDrawer('Agent', head + `
+        <h4>Job</h4><div class="agent-job">${a.job}</div>
+        <h4>How much it does on its own</h4>
+        <div class="dial">${LEVELS.map((l, k) => `<button data-level="${k}" class="${a.level === k ? 'is-active' : ''}">${l}</button>`).join('')}</div>
+        <div class="what-next">${['It suggests only. Every change waits for you.', 'It acts after you sign off. You see each change first.', 'It acts on its own and logs everything in Done by agents, where you can undo it.'][a.level]}</div>
+        <h4>Track record</h4><div class="facts"><div><span>Accepted</span>${a.rate}% of its work this month without edits</div><div><span>Today</span>${acts.filter(([h]) => !h.undone).length} actions on its own</div></div>
+        <h4>Today's actions</h4><div class="rows">${acts.map(([h, i]) => `<div class="row-item ${h.undone ? 'is-undone' : ''}" data-agact="${i}"><div><span class="stage-pill sp-${BAND[h.stage]}">${NAME[h.stage]}</span></div><div><div class="title">${h.title}</div></div><div class="who">${h.when}</div></div>`).join('')}</div>`,
+        `<button class="btn ${paused.has(name) ? 'btn-primary' : ''}" id="pause-agent">${paused.has(name) ? 'Resume' : 'Pause'}</button>`, el);
+      $$d('[data-level]').forEach(b => b.onclick = () => { a.level = +b.dataset.level; draw(); toast(`${name} now: ${LEVELS[a.level].toLowerCase()}.`); });
+      $$d('[data-agact]').forEach(r => r.onclick = () => openAudit(+r.dataset.agact, r));
+      $d('#pause-agent').onclick = () => {
+        const was = paused.has(name);
+        was ? paused.delete(name) : paused.add(name);
+        draw();
+        toast(was ? `${name} resumed.` : `${name} is paused. Nothing runs until you resume it.`);
+      };
+    }
+    $$d('[data-atab]').forEach(t => t.onclick = () => { tab = t.dataset.atab; draw(); });
+  };
+  draw();
+}
+
+const NOTIFS = [
+  { who: 'Priya', text: 'Priya mentioned you on Merch store roadmap', when: '2 days ago', rel: 'q5' },
+  { who: 'Marcus', text: 'Marcus asked for your review of Ticket transfer', when: '1 day ago', rel: 'q2' },
+  { who: 'Nina', text: 'Nina assigned you a to-do: Approve the November board report', when: 'Today', rel: 'q7' },
+  { who: 'Elena', text: 'Elena shared the stadium maps prototype with 6 customers', when: '5 days ago', rel: 't3' },
+  { who: 'Sam', text: 'Sam moved the Spring release date to March 3', when: '3 days ago' },
+  { who: 'Matchday PM', text: 'Matchday PM finished this week\'s ranking', when: 'Today', rel: 'q1' },
+];
+
+
+const ELLE_QA = {
+  'What changed since yesterday?': () => `Agents did ${HANDLED.filter(h => !h.undone).length} things on their own. One new theme formed: family ticket bundles, with 18 ideas. Check-in dropped 6% after the new sign-in. Ticket transfer came back with 2 gaps.`,
+  'What should I do first?': () => { const q = open(QUEUE.mine)[0]; return q ? `Start with "${q.title}". ${q.why}` : 'Nothing needs you right now.'; },
+  'What is blocking my team?': () => `${open(QUEUE.team).length} things. The oldest is Elena's stadium maps prototype, with no feedback in 5 days. Priya's review has held up renewal reminders for 4 days.`,
+};
+function openElle(el) {
+  const answer = (q, a) => { $d('#elle-thread').insertAdjacentHTML('beforeend', `<div class="elle-q">${q}</div><div class="ai-result">${elleHead('Elle')}${a}</div>`); };
+  showDrawer('Elle', `<h2>Ask Elle about today</h2><div class="byline">Elle, the AI assistant in Aha! software, answers from your decisions, meetings, and what agents did.</div>
+    <div class="elle-chips">${Object.keys(ELLE_QA).map(q => `<button class="btn btn-ai btn-small" data-ask="${q}">${q}</button>`).join('')}</div>
+    <div id="elle-thread"></div>`,
+    `<input class="input" id="elle-input" placeholder="Ask Elle anything about today" style="flex:1"><button class="btn btn-ai" id="elle-send">Ask</button>`, el);
+  $$d('[data-ask]').forEach(b => b.onclick = () => answer(b.dataset.ask, ELLE_QA[b.dataset.ask]()));
+  const send = () => { const v = val('#elle-input'); if (!v) return; answer(v, `In the product, Elle answers this from your workspace. In this prototype, try one of the suggested questions.`); $d('#elle-input').value = ''; };
+  $d('#elle-send').onclick = send;
+  $d('#elle-input').onkeydown = e => { if (e.key === 'Enter') send(); };
+}
+
+document.querySelectorAll('.nav-sidebar__item').forEach(n => n.onclick = () => {
+  const k = n.dataset.nav, agent = n.dataset.agent;
+  if (agent) return openAgent(agent, null);
+  if (k === 'today') { setView('decisions'); setScope('mine'); return; }
+  if (k === 'meetings') return setView('meetings');
+  if (k === 'elle') return openElle(null);
+  if (k === 'notifications') return setView('notifications');
+  if (k === 'todos') return setView('todos');
+  toast(`${n.textContent.trim()} works as it does in My work today. This prototype covers Today.`);
+});
+document.getElementById('top-elle').onclick = () => openElle(null);
+document.getElementById('top-search').onclick = () => document.getElementById('search').focus();
+document.querySelectorAll('.top-nav-item').forEach(a => a.onclick = () => toast(`Opens ${a.title}. Outside this prototype.`));
+document.getElementById('collapse').onclick = e => {
+  const side = document.querySelector('.nav-sidebar');
+  side.classList.toggle('hidden');
+  e.currentTarget.innerHTML = side.classList.contains('hidden') ? '&raquo;' : '&laquo;';
+  e.currentTarget.title = side.classList.contains('hidden') ? 'Show navigation' : 'Collapse';
+};
+document.getElementById('add-btn').onclick = e => { e.stopPropagation(); document.getElementById('add-menu').classList.toggle('is-open'); };
+document.querySelectorAll('#add-menu [data-add]').forEach(a => a.onclick = () => {
+  document.getElementById('add-menu').classList.remove('is-open');
+  if (a.dataset.add === 'todo') { setView('todos'); return document.getElementById('todo-new').focus(); }
+  toast(`In the product, this opens the new ${a.dataset.add} form.`);
+});
+document.getElementById('search').oninput = e => { searchText = e.target.value.trim().toLowerCase(); render(); };
+document.getElementById('drawer-more').onclick = e => { e.stopPropagation(); document.getElementById('drawer-menu').classList.toggle('is-open'); };
+document.querySelectorAll('#drawer-menu [data-dmenu]').forEach(a => a.onclick = () => {
+  document.getElementById('drawer-menu').classList.remove('is-open');
+  if (a.dataset.dmenu === 'wide') { drawer.classList.toggle('is-wide'); a.textContent = drawer.classList.contains('is-wide') ? 'Back to side panel' : 'Open as full page'; }
+  else toast('Link copied.');
+});
+document.addEventListener('click', () => { document.getElementById('add-menu').classList.remove('is-open'); document.getElementById('drawer-menu').classList.remove('is-open'); });
+
+renderMeetings(); render();
+</script>
+</body>
+</html>

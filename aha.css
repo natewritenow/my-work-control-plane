@@ -1,0 +1,1772 @@
+/* ==========================================================================
+   Aha! prototype stylesheet
+   Generated from the internal design system. Tokens are the real values.
+   Do not hand-tune this file. Edit src/components.css and rebuild.
+   ========================================================================== */
+
+/* Semantic color tokens, light */
+:root {
+  /* Backgrounds */
+  --aha-color-background-primary: #ffffff;
+  --aha-color-background-secondary: #f7f7f7;
+  --aha-color-background-tertiary: #f1f1f1;
+  --aha-color-background-accent: #ffffff;
+  --aha-color-background-container: #f7f7f7;
+  --aha-color-background-container-light: #fafafa;
+  --aha-color-background-input: #ffffff;
+  --aha-color-background-hover: #e1e1e1;
+  --aha-color-background-list-item-active: #dbefff;
+  --aha-color-background-list-item-active-hover: #b1d4f5;
+  --aha-color-background-list-item-hover: #f1f1f1;
+  --aha-color-background-sidebar-nav-item-active: #ebf6ff;
+  --aha-color-background-sidebar-nav-item-active-hover: #dbefff;
+  --aha-color-background-brand-subtlest: #ebf6ff;
+  --aha-color-background-brand-subtlest-hover: #ebf6ff;
+  --aha-color-background-brand-subtlest-active: #dbefff;
+  --aha-color-background-inverse: #333333;
+  --aha-color-background-dropzone: #dbefff;
+  --aha-color-background-instructions: #faebb9;
+  --aha-color-background-annotation-placeholder: #e5f3d6;
+  --aha-color-background-create-whiteboard: #f5dce4;
+  --aha-color-background-task-date-today: #e5dced;
+  --aha-color-background-input-focused: #dbefff;
+  --aha-color-background-project-menu: #0073cf;
+  --aha-color-background-annotation-learning: #dcfff0;
+  --aha-color-background-annotation-learning-focused: #c2ffe5;
+  --aha-color-background-graphic-icon-learning: #c2ffe5;
+  --aha-color-background-annotation-quote: #ecf0ff;
+  --aha-color-background-annotation-quote-focused: #dde5ff;
+  --aha-color-background-graphic-icon-quote: #dde5ff;
+  --aha-color-background-annotation-response: #fffcee;
+  --aha-color-background-annotation-response-focused: #fff9d8;
+  --aha-color-background-graphic-icon-response: #fff9d8;
+  --aha-color-background-annotation-summary: #f5eeff;
+  --aha-color-background-annotation-summary-focused: #f5eeff;
+  --aha-color-background-graphic-icon-summary: #f5eeff;
+  --aha-color-background-annotation-clip: #ddecf0;
+  --aha-color-background-annotation-clip-focused: #a9d0db;
+  --aha-color-background-graphic-icon-clip: #ddecf0;
+  --aha-color-background-annotation-linked: #ebf6ff;
+  --aha-color-background-annotation-linked-focused: #dbefff;
+  --aha-color-background-brand-default: #0073cf;
+
+  /* Text */
+  --aha-color-text: #333333;
+  --aha-color-text-secondary: #666666;
+  --aha-color-text-tertiary: #999999;
+  --aha-color-text-inverse: #ffffff;
+  --aha-color-icon-accent: #e1e1e1;
+  --aha-color-text-accent: #b5b5b5;
+  --aha-color-text-link: #0073cf;
+  --aha-color-text-link-dark: #004582;
+  --aha-color-text-link-inverse: #96c3ee;
+  --aha-color-danger: #ba4111;
+  --aha-color-text-card: #333333;
+  --aha-color-text-favorite: #ffe48e;
+  --aha-color-text-light: #ffffff;
+  --aha-color-text-dark: #333333;
+  --aha-color-background-inserted: #e5f3d6;
+  --aha-color-background-deleted: #f5dce4;
+  --aha-color-text-whiteboard-create: #c47c93;
+  --aha-color-text-task-date-today: #624f73;
+  --aha-color-text-input-focused: #053561;
+  --aha-color-text-purple: #624f73;
+  --aha-color-chart-at-risk: #eb7957;
+  --aha-color-chart-on-track: #5ca5e0;
+  --aha-color-text-check: #7bba34;
+  --aha-color-text-xmark: #ba4111;
+  --aha-color-text-accent-dark: #999999;
+  --aha-color-text-graphic-icon-learning: #018454;
+  --aha-color-text-graphic-icon-quote: #3a5bcf;
+  --aha-color-text-graphic-icon-response: #c9ab0e;
+  --aha-color-text-graphic-icon-clip: #397e82;
+  --aha-color-text-input-placeholder: #b5b5b5;
+
+  /* Buttons */
+  --aha-color-background-button: #ffffff;
+  --aha-color-background-button-hovered: #f1f1f1;
+  --aha-color-background-button-active: #e1e1e1;
+  --aha-color-border-button: #e1e1e1;
+  --aha-color-border-button-hovered: #b5b5b5;
+  --aha-color-background-button-primary: #0073cf;
+  --aha-color-background-button-primary-hovered: #004582;
+  --aha-color-background-button-primary-active: #053561;
+  --aha-color-border-button-secondary: #b1d4f5;
+  --aha-color-background-button-gray: #f1f1f1;
+  --aha-color-background-button-gray-hovered: #e1e1e1;
+  --aha-color-background-button-gray-active: #cdcdcd;
+  --aha-color-background-button-success: #5e8c05;
+  --aha-color-background-button-success-hovered: #4a7001;
+  --aha-color-background-button-success-active: #365201;
+  --aha-color-background-button-danger: #c9250e;
+  --aha-color-background-button-danger-hovered: #9c1f0e;
+  --aha-color-background-button-danger-active: #660c00;
+  --aha-color-background-button-warning: #f99319;
+  --aha-color-background-button-warning-hovered: #de7f03;
+  --aha-color-background-button-warning-active: #c76d00;
+  --aha-color-background-button-ghost-hovered: #ebf6ff;
+  --aha-color-background-button-ghost-active: #e0eef9;
+  --aha-color-background-button-pill: #f1f1f1;
+
+  /* Alerts */
+  --aha-color-text-alert-danger: #9c1f0e;
+  --aha-color-border-alert-danger: #c9250e;
+  --aha-color-background-alert-danger: #fff0ee;
+  --aha-color-text-alert-warning: #8d7700;
+  --aha-color-border-alert-warning: #b09506;
+  --aha-color-background-alert-warning: #fffcee;
+  --aha-color-text-alert-success: #5e8c05;
+  --aha-color-border-alert-success: #5e8c05;
+  --aha-color-background-alert-success: #f8ffeb;
+  --aha-color-text-alert-info: #053561;
+  --aha-color-border-alert-info: #0073cf;
+  --aha-color-background-alert-info: #ebf6ff;
+  --aha-color-border-alert-ai: #662db5;
+  --aha-color-background-alert-ai: #f5eeff;
+  --aha-color-icon-alert-ai: #854ad7;
+  --aha-color-border-alert-info-settings: #666666;
+  --aha-color-background-alert-settings: #f7f7f7;
+
+  /* Editor */
+  --aha-color-background-editor-toolbar: #e0eef9;
+  --aha-color-background-editor-button: #2d363d;
+  --aha-color-background-editor-button-hovered: #e1e1e1;
+  --aha-color-background-editor-button-active: #b1d4f5;
+  --aha-color-background-editor-button-text-active: #004582;
+  --aha-color-border-editor: #e9e9e9;
+  --aha-color-background-editor-reference-pill: #faebb9;
+  --aha-color-border-editor-reference-pill: #ffe48e;
+  --aha-color-text-editor-info-block: #666666;
+
+  /* Colored elements */
+  --aha-color-background-blue: #dbefff;
+  --aha-color-border-blue: #b1d4f5;
+  --aha-color-text-blue: #0061ae;
+  --aha-color-background-red: #fae7e1;
+  --aha-color-border-red: #fac0af;
+  --aha-color-text-red: #992e0b;
+  --aha-color-background-yellow: #faebb9;
+  --aha-color-border-yellow: #f0ca4d;
+  --aha-color-text-yellow: #7d630b;
+  --aha-color-background-green: #e5f3d6;
+  --aha-color-border-green: #7bba34;
+  --aha-color-text-green: #326601;
+  --aha-color-border-white: #ffffff;
+  --aha-color-text-code: #dd1144;
+
+  /* Menus */
+  --aha-color-text-menu-highlighted: #004582;
+  --aha-color-background-menu-active: #dbefff;
+  --aha-color-background-menu-hover: #f1f1f1;
+
+  /* Primary navigation */
+  --aha-color-text-nav-primary-highlighted: #ffffff;
+  --aha-color-background-nav-primary-active: #0073cf;
+  --aha-color-background-nav-primary-hover: #5ca5e0;
+
+  /* Borders */
+  --aha-color-border-light: #f1f1f1;
+  --aha-color-border-primary: #e1e1e1;
+  --aha-color-border-secondary: #cdcdcd;
+  --aha-color-border-secondary-no-dark: #e1e1e1;
+  --aha-color-border-choice-box-active: #5ca5e0;
+  --aha-color-border-annotation-learning: #73f2bd;
+  --aha-color-border-annotation-learning-focused: #73f2bd;
+  --aha-color-border-annotation-quote: #ccd6ff;
+  --aha-color-border-annotation-quote-focused: #ccd6ff;
+  --aha-color-border-annotation-response: #fff1a3;
+  --aha-color-border-annotation-response-focused: #fee76f;
+  --aha-color-border-annotation-summary: #eadaff;
+  --aha-color-border-annotation-summary-focused: #cca8ff;
+  --aha-color-border-annotation-clip: #a9d0db;
+  --aha-color-border-annotation-clip-focused: #6ea6a9;
+  --aha-color-border-annotation-linked: #b1d4f5;
+  --aha-color-border-annotation-linked-focused: #5ca5e0;
+  --aha-color-border-brand-subtle: #b1d4f5;
+  --aha-color-border-overlay-thumbnail-hover: #cdcdcd;
+  --aha-color-border-overlay-thumbnail-selected: #e1e1e1;
+  --aha-color-border-overlay-input-hover: #b1d4f5;
+
+  /* Background — In Progress */
+  --aha-color-background-page-primary: #ffffff;
+  --aha-color-background-page-secondary: #f7f7f7;
+  --aha-color-background-container-page: #ffffff;
+  --aha-color-background-raised-container: #f7f7f7;
+
+  /* Misc */
+  --aha-color-background-tooltip: #333333;
+  --aha-color-background-chart-tooltip: #ffffff;
+  --aha-color-background-chart-position-button: #dbefff;
+  --aha-color-tooltip-tint-100: #dbefff;
+  --aha-color-tooltip-tint-400: #5ca5e0;
+  --aha-color-tooltip-arrow-fill: #ffffff;
+  --aha-color-progress-bar: #5ca5e0;
+  --aha-color-tag-dark: #666666;
+  --aha-color-border-project-type-hover: #5ca5e0;
+  --aha-color-background-project-type-selected: #dbefff;
+  --aha-color-border-project-type-selected: #0073cf;
+  --aha-color-border-aha-promo-try-pill-hover: #aed186;
+
+  /* Capacity Report */
+  --aha-background-capacity-schedule: #ebf6ff;
+  --aha-background-capacity-planned: #b1d4f5;
+  --aha-background-capacity-done: #c7dbaf;
+  --aha-background-capacity-over: #f97e6e;
+
+  /* Starter Roadmap */
+  --aha-background-starter-roadmap-project: #666666;
+  --aha-background-starter-roadmap-goal: #f1f1f1;
+  --aha-background-starter-roadmap-release: #f1f1f1;
+
+  /* Badges */
+  --aha-color-text-badge-blue: #0073cf;
+  --aha-color-text-badge-blue-inverse: #dbefff;
+  --aha-color-background-badge-blue: #dbefff;
+  --aha-color-background-badge-blue-inverse: #dbefff;
+  --aha-color-text-badge-red: #992e0b;
+  --aha-color-text-badge-red-inverse: #fae7e1;
+  --aha-color-background-badge-red: #fae7e1;
+  --aha-color-background-badge-red-inverse: #992e0b;
+  --aha-color-text-badge-yellow: #b1901e;
+  --aha-color-text-badge-yellow-inverse: #faebb9;
+  --aha-color-background-badge-yellow: #faebb9;
+  --aha-color-background-badge-yellow-inverse: #b1901e;
+  --aha-color-text-badge-green: #326601;
+  --aha-color-text-badge-green-inverse: #e5f3d6;
+  --aha-color-background-badge-green: #e5f3d6;
+  --aha-color-background-badge-green-inverse: #326601;
+  --aha-color-text-badge-gray: #666666;
+  --aha-color-text-badge-gray-inverse: #f7f7f7;
+  --aha-color-background-badge-gray: #f1f1f1;
+  --aha-color-background-badge-gray-inverse: #999999;
+  --aha-color-text-badge-orange: #c76d00;
+  --aha-color-text-badge-orange-inverse: #fcddb8;
+  --aha-color-background-badge-orange: #fcddb8;
+  --aha-color-background-badge-orange-inverse: #de7f03;
+  --aha-color-text-badge-white: #666666;
+  --aha-color-text-badge-white-inverse: #ffffff;
+  --aha-color-background-badge-white: #ffffff;
+  --aha-color-background-badge-white-inverse: #666666;
+
+  /* Pills */
+  --aha-color-background-aha-pill-green: #e5f3d6;
+  --aha-color-text-aha-pill-green: #4f8f0e;
+
+  /* Icons */
+  --aha-color-icon-success: #90c91d;
+  --aha-color-icon-warning: #f5af26;
+  --aha-color-icon-danger: #f5624e;
+  --aha-color-icon-info: #0073cf;
+  --aha-color-icon-overlay: #ffffff;
+}
+
+/* Semantic color tokens, dark. Only the roles that change are redefined. */
+@media not all {
+  :root:not([data-theme="light"]) {
+    /* Backgrounds */
+    --aha-color-background-primary: #21282e;
+    --aha-color-background-secondary: #2d363d;
+    --aha-color-background-tertiary: #3c454d;
+    --aha-color-background-accent: #2d363d;
+    --aha-color-background-container: #14171a;
+    --aha-color-background-container-light: #2d363d;
+    --aha-color-background-input: #14171a;
+    --aha-color-background-hover: #2d363d;
+    --aha-color-background-list-item-active-hover: #053561;
+    --aha-color-background-sidebar-nav-item-active: #053561;
+    --aha-color-background-sidebar-nav-item-active-hover: #004582;
+    --aha-color-background-brand-subtlest: #053561;
+    --aha-color-background-brand-subtlest-hover: #004582;
+    --aha-color-background-brand-subtlest-active: #0061ae;
+    --aha-color-background-inverse: #e8eef3;
+    --aha-color-background-dropzone: #053561;
+    --aha-color-background-instructions: #ffe48e;
+    --aha-color-background-annotation-placeholder: #326601;
+    --aha-color-background-create-whiteboard: #913d56;
+    --aha-color-background-task-date-today: #7f6b91;
+    --aha-color-background-input-focused: #004582;
+    --aha-color-background-project-menu: #21282e;
+    --aha-color-background-annotation-learning: #004729;
+    --aha-color-background-annotation-learning-focused: #005f37;
+    --aha-color-background-graphic-icon-learning: #005f37;
+    --aha-color-background-annotation-quote: #05195f;
+    --aha-color-background-annotation-quote-focused: #1d327a;
+    --aha-color-background-graphic-icon-quote: #1c368e;
+    --aha-color-background-annotation-response: #8d7700;
+    --aha-color-background-annotation-response-focused: #b09506;
+    --aha-color-background-graphic-icon-response: #b09506;
+    --aha-color-background-annotation-summary: #1b0041;
+    --aha-color-background-annotation-summary-focused: #30076a;
+    --aha-color-background-graphic-icon-summary: #30076a;
+    --aha-color-background-annotation-clip: #07363d;
+    --aha-color-background-annotation-clip-focused: #14565c;
+    --aha-color-background-graphic-icon-clip: #14565c;
+    --aha-color-background-annotation-linked: #053561;
+    --aha-color-background-annotation-linked-focused: #004582;
+    --aha-color-background-brand-default: #0073cf;
+
+    /* Text */
+    --aha-color-text: #e8eef3;
+    --aha-color-text-secondary: #9ca4ab;
+    --aha-color-text-tertiary: #78828a;
+    --aha-color-text-inverse: #21282e;
+    --aha-color-icon-accent: #3c454d;
+    --aha-color-text-accent: #9ca4ab;
+    --aha-color-text-link: #5ca5e0;
+    --aha-color-text-link-dark: #96c3ee;
+    --aha-color-text-link-inverse: #004582;
+    --aha-color-danger: #eb7957;
+    --aha-color-text-card: #78828a;
+    --aha-color-text-favorite: #ffe48e;
+    --aha-color-text-light: #ffffff;
+    --aha-color-text-dark: #21282e;
+    --aha-color-background-inserted: #326601;
+    --aha-color-background-deleted: #992e0b;
+    --aha-color-text-whiteboard-create: #f0b2c6;
+    --aha-color-text-task-date-today: #e5dced;
+    --aha-color-text-input-focused: #dbefff;
+    --aha-color-text-purple: #bfb0cf;
+    --aha-color-chart-at-risk: #ba4111;
+    --aha-color-chart-on-track: #004582;
+    --aha-color-text-check: #c7dbaf;
+    --aha-color-text-xmark: #fa9678;
+    --aha-color-text-accent-dark: #9ca4ab;
+    --aha-color-text-graphic-icon-learning: #73f2bd;
+    --aha-color-text-graphic-icon-quote: #ccd6ff;
+    --aha-color-text-graphic-icon-response: #fff5bc;
+    --aha-color-text-graphic-icon-clip: #ddecf0;
+    --aha-color-text-input-placeholder: #78828a;
+
+    /* Buttons */
+    --aha-color-background-button: #2d363d;
+    --aha-color-background-button-hovered: #3c454d;
+    --aha-color-background-button-active: #565f67;
+    --aha-color-border-button: #3c454d;
+    --aha-color-border-button-hovered: #565f67;
+    --aha-color-background-button-primary: #0073cf;
+    --aha-color-background-button-primary-hovered: #004582;
+    --aha-color-background-button-primary-active: #053561;
+    --aha-color-border-button-secondary: #004582;
+    --aha-color-background-button-gray: #565f67;
+    --aha-color-background-button-gray-hovered: #3c454d;
+    --aha-color-background-button-gray-active: #2d363d;
+    --aha-color-background-button-success: #5e8c05;
+    --aha-color-background-button-success-hovered: #4a7001;
+    --aha-color-background-button-success-active: #365201;
+    --aha-color-background-button-danger: #c9250e;
+    --aha-color-background-button-danger-hovered: #9c1f0e;
+    --aha-color-background-button-danger-active: #660c00;
+    --aha-color-background-button-warning: #de7f03;
+    --aha-color-background-button-warning-hovered: #f99319;
+    --aha-color-background-button-warning-active: #fca841;
+    --aha-color-background-button-ghost-hovered: #002c55;
+    --aha-color-background-button-ghost-active: #001d38;
+    --aha-color-background-button-pill: #2d363d;
+
+    /* Alerts */
+    --aha-color-text-alert-danger: #ffd1ca;
+    --aha-color-border-alert-danger: #f97e6e;
+    --aha-color-text-alert-warning: #fff5bc;
+    --aha-color-border-alert-warning: #dec128;
+    --aha-color-text-alert-success: #e4ffac;
+    --aha-color-border-alert-success: #70a40a;
+    --aha-color-text-alert-info: #dbefff;
+    --aha-color-border-alert-info: #5ca5e0;
+    --aha-color-border-alert-ai: #854ad7;
+    --aha-color-icon-alert-ai: #854ad7;
+    --aha-color-border-alert-info-settings: #9ca4ab;
+    --aha-color-background-alert-settings: #2d363d;
+
+    /* Editor */
+    --aha-color-background-editor-toolbar: #2d363d;
+    --aha-color-background-editor-button-hovered: #78828a;
+    --aha-color-background-editor-button-text-active: #5ca5e0;
+    --aha-color-border-editor: #565f67;
+    --aha-color-background-editor-reference-pill: #7d630b;
+    --aha-color-border-editor-reference-pill: #7d630b;
+    --aha-color-text-editor-info-block: #e8eef3;
+
+    /* Colored elements */
+    --aha-color-text-blue: #5ca5e0;
+    --aha-color-text-red: #eb7957;
+    --aha-color-text-yellow: #f0ca4d;
+    --aha-color-text-green: #4f8f0e;
+    --aha-color-border-white: #ffffff;
+    --aha-color-text-code: #eb7957;
+
+    /* Menus */
+    --aha-color-text-menu-highlighted: #b1d4f5;
+    --aha-color-background-menu-active: #004582;
+    --aha-color-background-menu-hover: #3c454d;
+
+    /* Primary navigation */
+    --aha-color-text-nav-primary-highlighted: #ffffff;
+    --aha-color-background-nav-primary-active: #0073cf;
+    --aha-color-background-nav-primary-hover: #5ca5e0;
+
+    /* Borders */
+    --aha-color-border-light: #3c454d;
+    --aha-color-border-primary: #3c454d;
+    --aha-color-border-secondary: #3c454d;
+    --aha-color-border-choice-box-active: #0061ae;
+    --aha-color-border-annotation-learning: #018454;
+    --aha-color-border-annotation-learning-focused: #018454;
+    --aha-color-border-annotation-quote: #3a5bcf;
+    --aha-color-border-annotation-quote-focused: #3a5bcf;
+    --aha-color-border-annotation-response: #f0d236;
+    --aha-color-border-annotation-response-focused: #f6dc52;
+    --aha-color-border-annotation-summary: #5219a0;
+    --aha-color-border-annotation-summary-focused: #5219a0;
+    --aha-color-border-annotation-clip: #397e82;
+    --aha-color-border-annotation-clip-focused: #397e82;
+    --aha-color-border-annotation-linked: #0061ae;
+    --aha-color-border-annotation-linked-focused: #0061ae;
+    --aha-color-border-brand-subtle: #0061ae;
+    --aha-color-border-overlay-thumbnail-hover: #767e86;
+    --aha-color-border-overlay-thumbnail-selected: #78828a;
+    --aha-color-border-overlay-input-hover: #b1d4f5;
+
+    /* Background — In Progress */
+    --aha-color-background-page-primary: #21282e;
+    --aha-color-background-page-secondary: #14171a;
+    --aha-color-background-container-page: #14171a;
+    --aha-color-background-raised-container: #21282e;
+
+    /* Misc */
+    --aha-color-background-tooltip: #565f67;
+    --aha-color-background-chart-tooltip: #565f67;
+    --aha-color-background-chart-position-button: #053561;
+    --aha-color-tooltip-tint-100: #002c55;
+    --aha-color-tooltip-tint-400: #004582;
+    --aha-color-tooltip-arrow-fill: #2d363d;
+    --aha-color-progress-bar: #0073cf;
+    --aha-color-tag-dark: #9ca4ab;
+    --aha-color-border-project-type-hover: #b1d4f5;
+    --aha-color-border-project-type-selected: #5ca5e0;
+    --aha-color-border-aha-promo-try-pill-hover: #4f8f0e;
+
+    /* Capacity Report */
+    --aha-background-capacity-schedule: #0073cf;
+    --aha-background-capacity-planned: #004582;
+    --aha-background-capacity-done: #7bba34;
+    --aha-background-capacity-over: #c9250e;
+
+    /* Starter Roadmap */
+    --aha-background-starter-roadmap-project: #78828a;
+    --aha-background-starter-roadmap-goal: #2d363d;
+    --aha-background-starter-roadmap-release: #565f67;
+
+    /* Badges */
+    --aha-color-text-badge-blue: #dbefff;
+    --aha-color-text-badge-blue-inverse: #0073cf;
+    --aha-color-background-badge-blue: #0073cf;
+    --aha-color-background-badge-blue-inverse: #0073cf;
+    --aha-color-text-badge-red: #fae7e1;
+    --aha-color-text-badge-red-inverse: #992e0b;
+    --aha-color-background-badge-red: #992e0b;
+    --aha-color-background-badge-red-inverse: #fae7e1;
+    --aha-color-text-badge-yellow: #faebb9;
+    --aha-color-text-badge-yellow-inverse: #b1901e;
+    --aha-color-background-badge-yellow: #b1901e;
+    --aha-color-background-badge-yellow-inverse: #faebb9;
+    --aha-color-text-badge-green: #e5f3d6;
+    --aha-color-text-badge-green-inverse: #326601;
+    --aha-color-background-badge-green: #326601;
+    --aha-color-background-badge-green-inverse: #e5f3d6;
+    --aha-color-text-badge-gray: #e8eef3;
+    --aha-color-text-badge-gray-inverse: #2d363d;
+    --aha-color-background-badge-gray: #3c454d;
+    --aha-color-background-badge-gray-inverse: #9ca4ab;
+    --aha-color-text-badge-orange: #fcddb8;
+    --aha-color-text-badge-orange-inverse: #c76d00;
+    --aha-color-background-badge-orange: #de7f03;
+    --aha-color-background-badge-orange-inverse: #fcddb8;
+    --aha-color-text-badge-white: #e8eef3;
+    --aha-color-text-badge-white-inverse: #ffffff;
+    --aha-color-background-badge-white: #ffffff;
+    --aha-color-background-badge-white-inverse: #e8eef3;
+
+    /* Pills */
+    --aha-color-background-aha-pill-green: #326601;
+    --aha-color-text-aha-pill-green: #e5f3d6;
+
+    /* Icons */
+    --aha-color-icon-success: #90c91d;
+    --aha-color-icon-warning: #f5af26;
+    --aha-color-icon-danger: #f5624e;
+    --aha-color-icon-info: #0073cf;
+    --aha-color-icon-overlay: #ffffff;
+  }
+}
+
+:root[data-theme="dark"] {
+  /* Backgrounds */
+  --aha-color-background-primary: #21282e;
+  --aha-color-background-secondary: #2d363d;
+  --aha-color-background-tertiary: #3c454d;
+  --aha-color-background-accent: #2d363d;
+  --aha-color-background-container: #14171a;
+  --aha-color-background-container-light: #2d363d;
+  --aha-color-background-input: #14171a;
+  --aha-color-background-hover: #2d363d;
+  --aha-color-background-list-item-active-hover: #053561;
+  --aha-color-background-sidebar-nav-item-active: #053561;
+  --aha-color-background-sidebar-nav-item-active-hover: #004582;
+  --aha-color-background-brand-subtlest: #053561;
+  --aha-color-background-brand-subtlest-hover: #004582;
+  --aha-color-background-brand-subtlest-active: #0061ae;
+  --aha-color-background-inverse: #e8eef3;
+  --aha-color-background-dropzone: #053561;
+  --aha-color-background-instructions: #ffe48e;
+  --aha-color-background-annotation-placeholder: #326601;
+  --aha-color-background-create-whiteboard: #913d56;
+  --aha-color-background-task-date-today: #7f6b91;
+  --aha-color-background-input-focused: #004582;
+  --aha-color-background-project-menu: #21282e;
+  --aha-color-background-annotation-learning: #004729;
+  --aha-color-background-annotation-learning-focused: #005f37;
+  --aha-color-background-graphic-icon-learning: #005f37;
+  --aha-color-background-annotation-quote: #05195f;
+  --aha-color-background-annotation-quote-focused: #1d327a;
+  --aha-color-background-graphic-icon-quote: #1c368e;
+  --aha-color-background-annotation-response: #8d7700;
+  --aha-color-background-annotation-response-focused: #b09506;
+  --aha-color-background-graphic-icon-response: #b09506;
+  --aha-color-background-annotation-summary: #1b0041;
+  --aha-color-background-annotation-summary-focused: #30076a;
+  --aha-color-background-graphic-icon-summary: #30076a;
+  --aha-color-background-annotation-clip: #07363d;
+  --aha-color-background-annotation-clip-focused: #14565c;
+  --aha-color-background-graphic-icon-clip: #14565c;
+  --aha-color-background-annotation-linked: #053561;
+  --aha-color-background-annotation-linked-focused: #004582;
+  --aha-color-background-brand-default: #0073cf;
+
+  /* Text */
+  --aha-color-text: #e8eef3;
+  --aha-color-text-secondary: #9ca4ab;
+  --aha-color-text-tertiary: #78828a;
+  --aha-color-text-inverse: #21282e;
+  --aha-color-icon-accent: #3c454d;
+  --aha-color-text-accent: #9ca4ab;
+  --aha-color-text-link: #5ca5e0;
+  --aha-color-text-link-dark: #96c3ee;
+  --aha-color-text-link-inverse: #004582;
+  --aha-color-danger: #eb7957;
+  --aha-color-text-card: #78828a;
+  --aha-color-text-favorite: #ffe48e;
+  --aha-color-text-light: #ffffff;
+  --aha-color-text-dark: #21282e;
+  --aha-color-background-inserted: #326601;
+  --aha-color-background-deleted: #992e0b;
+  --aha-color-text-whiteboard-create: #f0b2c6;
+  --aha-color-text-task-date-today: #e5dced;
+  --aha-color-text-input-focused: #dbefff;
+  --aha-color-text-purple: #bfb0cf;
+  --aha-color-chart-at-risk: #ba4111;
+  --aha-color-chart-on-track: #004582;
+  --aha-color-text-check: #c7dbaf;
+  --aha-color-text-xmark: #fa9678;
+  --aha-color-text-accent-dark: #9ca4ab;
+  --aha-color-text-graphic-icon-learning: #73f2bd;
+  --aha-color-text-graphic-icon-quote: #ccd6ff;
+  --aha-color-text-graphic-icon-response: #fff5bc;
+  --aha-color-text-graphic-icon-clip: #ddecf0;
+  --aha-color-text-input-placeholder: #78828a;
+
+  /* Buttons */
+  --aha-color-background-button: #2d363d;
+  --aha-color-background-button-hovered: #3c454d;
+  --aha-color-background-button-active: #565f67;
+  --aha-color-border-button: #3c454d;
+  --aha-color-border-button-hovered: #565f67;
+  --aha-color-background-button-primary: #0073cf;
+  --aha-color-background-button-primary-hovered: #004582;
+  --aha-color-background-button-primary-active: #053561;
+  --aha-color-border-button-secondary: #004582;
+  --aha-color-background-button-gray: #565f67;
+  --aha-color-background-button-gray-hovered: #3c454d;
+  --aha-color-background-button-gray-active: #2d363d;
+  --aha-color-background-button-success: #5e8c05;
+  --aha-color-background-button-success-hovered: #4a7001;
+  --aha-color-background-button-success-active: #365201;
+  --aha-color-background-button-danger: #c9250e;
+  --aha-color-background-button-danger-hovered: #9c1f0e;
+  --aha-color-background-button-danger-active: #660c00;
+  --aha-color-background-button-warning: #de7f03;
+  --aha-color-background-button-warning-hovered: #f99319;
+  --aha-color-background-button-warning-active: #fca841;
+  --aha-color-background-button-ghost-hovered: #002c55;
+  --aha-color-background-button-ghost-active: #001d38;
+  --aha-color-background-button-pill: #2d363d;
+
+  /* Alerts */
+  --aha-color-text-alert-danger: #ffd1ca;
+  --aha-color-border-alert-danger: #f97e6e;
+  --aha-color-text-alert-warning: #fff5bc;
+  --aha-color-border-alert-warning: #dec128;
+  --aha-color-text-alert-success: #e4ffac;
+  --aha-color-border-alert-success: #70a40a;
+  --aha-color-text-alert-info: #dbefff;
+  --aha-color-border-alert-info: #5ca5e0;
+  --aha-color-border-alert-ai: #854ad7;
+  --aha-color-icon-alert-ai: #854ad7;
+  --aha-color-border-alert-info-settings: #9ca4ab;
+  --aha-color-background-alert-settings: #2d363d;
+
+  /* Editor */
+  --aha-color-background-editor-toolbar: #2d363d;
+  --aha-color-background-editor-button-hovered: #78828a;
+  --aha-color-background-editor-button-text-active: #5ca5e0;
+  --aha-color-border-editor: #565f67;
+  --aha-color-background-editor-reference-pill: #7d630b;
+  --aha-color-border-editor-reference-pill: #7d630b;
+  --aha-color-text-editor-info-block: #e8eef3;
+
+  /* Colored elements */
+  --aha-color-text-blue: #5ca5e0;
+  --aha-color-text-red: #eb7957;
+  --aha-color-text-yellow: #f0ca4d;
+  --aha-color-text-green: #4f8f0e;
+  --aha-color-border-white: #ffffff;
+  --aha-color-text-code: #eb7957;
+
+  /* Menus */
+  --aha-color-text-menu-highlighted: #b1d4f5;
+  --aha-color-background-menu-active: #004582;
+  --aha-color-background-menu-hover: #3c454d;
+
+  /* Primary navigation */
+  --aha-color-text-nav-primary-highlighted: #ffffff;
+  --aha-color-background-nav-primary-active: #0073cf;
+  --aha-color-background-nav-primary-hover: #5ca5e0;
+
+  /* Borders */
+  --aha-color-border-light: #3c454d;
+  --aha-color-border-primary: #3c454d;
+  --aha-color-border-secondary: #3c454d;
+  --aha-color-border-choice-box-active: #0061ae;
+  --aha-color-border-annotation-learning: #018454;
+  --aha-color-border-annotation-learning-focused: #018454;
+  --aha-color-border-annotation-quote: #3a5bcf;
+  --aha-color-border-annotation-quote-focused: #3a5bcf;
+  --aha-color-border-annotation-response: #f0d236;
+  --aha-color-border-annotation-response-focused: #f6dc52;
+  --aha-color-border-annotation-summary: #5219a0;
+  --aha-color-border-annotation-summary-focused: #5219a0;
+  --aha-color-border-annotation-clip: #397e82;
+  --aha-color-border-annotation-clip-focused: #397e82;
+  --aha-color-border-annotation-linked: #0061ae;
+  --aha-color-border-annotation-linked-focused: #0061ae;
+  --aha-color-border-brand-subtle: #0061ae;
+  --aha-color-border-overlay-thumbnail-hover: #767e86;
+  --aha-color-border-overlay-thumbnail-selected: #78828a;
+  --aha-color-border-overlay-input-hover: #b1d4f5;
+
+  /* Background — In Progress */
+  --aha-color-background-page-primary: #21282e;
+  --aha-color-background-page-secondary: #14171a;
+  --aha-color-background-container-page: #14171a;
+  --aha-color-background-raised-container: #21282e;
+
+  /* Misc */
+  --aha-color-background-tooltip: #565f67;
+  --aha-color-background-chart-tooltip: #565f67;
+  --aha-color-background-chart-position-button: #053561;
+  --aha-color-tooltip-tint-100: #002c55;
+  --aha-color-tooltip-tint-400: #004582;
+  --aha-color-tooltip-arrow-fill: #2d363d;
+  --aha-color-progress-bar: #0073cf;
+  --aha-color-tag-dark: #9ca4ab;
+  --aha-color-border-project-type-hover: #b1d4f5;
+  --aha-color-border-project-type-selected: #5ca5e0;
+  --aha-color-border-aha-promo-try-pill-hover: #4f8f0e;
+
+  /* Capacity Report */
+  --aha-background-capacity-schedule: #0073cf;
+  --aha-background-capacity-planned: #004582;
+  --aha-background-capacity-done: #7bba34;
+  --aha-background-capacity-over: #c9250e;
+
+  /* Starter Roadmap */
+  --aha-background-starter-roadmap-project: #78828a;
+  --aha-background-starter-roadmap-goal: #2d363d;
+  --aha-background-starter-roadmap-release: #565f67;
+
+  /* Badges */
+  --aha-color-text-badge-blue: #dbefff;
+  --aha-color-text-badge-blue-inverse: #0073cf;
+  --aha-color-background-badge-blue: #0073cf;
+  --aha-color-background-badge-blue-inverse: #0073cf;
+  --aha-color-text-badge-red: #fae7e1;
+  --aha-color-text-badge-red-inverse: #992e0b;
+  --aha-color-background-badge-red: #992e0b;
+  --aha-color-background-badge-red-inverse: #fae7e1;
+  --aha-color-text-badge-yellow: #faebb9;
+  --aha-color-text-badge-yellow-inverse: #b1901e;
+  --aha-color-background-badge-yellow: #b1901e;
+  --aha-color-background-badge-yellow-inverse: #faebb9;
+  --aha-color-text-badge-green: #e5f3d6;
+  --aha-color-text-badge-green-inverse: #326601;
+  --aha-color-background-badge-green: #326601;
+  --aha-color-background-badge-green-inverse: #e5f3d6;
+  --aha-color-text-badge-gray: #e8eef3;
+  --aha-color-text-badge-gray-inverse: #2d363d;
+  --aha-color-background-badge-gray: #3c454d;
+  --aha-color-background-badge-gray-inverse: #9ca4ab;
+  --aha-color-text-badge-orange: #fcddb8;
+  --aha-color-text-badge-orange-inverse: #c76d00;
+  --aha-color-background-badge-orange: #de7f03;
+  --aha-color-background-badge-orange-inverse: #fcddb8;
+  --aha-color-text-badge-white: #e8eef3;
+  --aha-color-text-badge-white-inverse: #ffffff;
+  --aha-color-background-badge-white: #ffffff;
+  --aha-color-background-badge-white-inverse: #e8eef3;
+
+  /* Pills */
+  --aha-color-background-aha-pill-green: #326601;
+  --aha-color-text-aha-pill-green: #e5f3d6;
+
+  /* Icons */
+  --aha-color-icon-success: #90c91d;
+  --aha-color-icon-warning: #f5af26;
+  --aha-color-icon-danger: #f5624e;
+  --aha-color-icon-info: #0073cf;
+  --aha-color-icon-overlay: #ffffff;
+}
+
+/* ==========================================================================
+   Scale tokens. These do not change between themes.
+   ========================================================================== */
+
+:root {
+  /* Spacing. 4px grid, with a 2px outlier for inline gaps. */
+  --spacer: 0.25rem;
+  --spacer-0: 0;
+  --spacer-05: 2px;
+  --spacer-1: 4px;
+  --spacer-2: 8px;
+  --spacer-3: 12px;
+  --spacer-4: 16px;
+  --spacer-5: 20px;
+  --spacer-6: 24px;
+  --spacer-7: 28px;
+  --spacer-8: 32px;
+  --spacer-9: 36px;
+  --spacer-10: 40px;
+  --spacer-11: 44px;
+  --spacer-12: 48px;
+
+  /* Type. Base is 12px. Aha! runs small and dense. */
+  --font-family: Inter, Helvetica, "Segoe UI", Arial, sans-serif;
+  --font-family-mono: Monaco, Menlo, Consolas, "Courier New", monospace;
+  --default-font-size: 0.75rem;
+
+  --font-size-050: 1rem;
+  --font-size-100: 0.875rem;
+  --font-size-200: 0.8125rem;
+  --font-size-300: 0.75rem;
+
+  --font-size-h-100: 1.75rem;
+  --font-size-h-200: 1.5rem;
+  --font-size-h-300: 1.375rem;
+  --font-size-h-400: 1.25rem;
+  --font-size-h-500: 1.125rem;
+  --font-size-h-600: 1rem;
+  --font-size-h-700: 0.875rem;
+  --font-size-h-800: 0.75rem;
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Shape */
+  --aha-border-radius-small: 2px;
+  --aha-border-radius: 4px;
+  --aha-border-radius-large: 8px;
+  --aha-border-radius-round: 30em;
+  --aha-border: 1px solid var(--aha-color-border-primary);
+
+  /* Elevation. Restrained by design: most surfaces use a border. */
+  --aha-shadow-small: 0 0 8px 0 #00000014;
+  --aha-shadow-medium: 0 3px 6px 0 #0003;
+  --aha-shadow-large: 0 0 16px 0 #0000004d;
+  --aha-shadow-focus: 0 0 0 2px rgba(92, 165, 224, 1);
+
+  /* Fixed chrome dimensions taken from the running app */
+  --top-nav-height: 41px;
+  --page-nav-height: 102px;
+  --side-panel-width: 532px;   /* record detail attribute panel */
+  --drawer-width: 650px;       /* record drawer over a list */
+  --side-panel-header-height: 60px;
+  --control-height: 30px;
+  --rail-width: 45px;          /* collapsed left or right rail */
+  --board-column-width: 280px;
+  --board-card-width: 260px;
+  --gantt-label-width: 300px;
+
+  /* Elle */
+  --elle-sparkle-start: #d34cf9;
+  --elle-sparkle-end: #0889f0;
+  --elle-gradient: linear-gradient(90deg, var(--elle-sparkle-start), var(--elle-sparkle-end));
+}
+
+@media not all {
+  :root:not([data-theme="light"]) {
+    --aha-shadow-small: 0 0 8px 0 #0000004d;
+    --aha-shadow-medium: 0 3px 6px 0 #0006;
+    --aha-shadow-large: 0 0 16px 0 #00000080;
+    --elle-sparkle-start: #da85fb;
+    --elle-sparkle-end: #7bcaff;
+  }
+}
+
+:root[data-theme="dark"] {
+  --aha-shadow-small: 0 0 8px 0 #0000004d;
+  --aha-shadow-medium: 0 3px 6px 0 #0006;
+  --aha-shadow-large: 0 0 16px 0 #00000080;
+  --elle-sparkle-start: #da85fb;
+  --elle-sparkle-end: #7bcaff;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--default-font-size);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.33;
+  color: var(--aha-color-text);
+  background: var(--aha-color-background-container);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--aha-color-text-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre, .mono { font-family: var(--font-family-mono); }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--aha-color-border-light);
+  margin: var(--spacer-4) 0;
+}
+
+:focus-visible { outline: none; box-shadow: var(--aha-shadow-focus); }
+
+/* Type utilities, matching the design system class names */
+.t-050 { font-size: var(--font-size-050); line-height: 1.25rem; }
+.t-100 { font-size: var(--font-size-100); line-height: 1.25rem; }
+.t-200 { font-size: var(--font-size-200); line-height: 1.25rem; }
+.t-300 { font-size: var(--font-size-300); line-height: 1rem; }
+
+.h-100, .h-200, .h-300, .h-400, .h-500, .h-600, .h-700, .h-800 {
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+.h-100 { font-size: var(--font-size-h-100); line-height: 2.25rem; }
+.h-200 { font-size: var(--font-size-h-200); line-height: 2rem; }
+.h-300 { font-size: var(--font-size-h-300); line-height: 1.875rem; }
+.h-400 { font-size: var(--font-size-h-400); line-height: 1.75rem; }
+.h-500 { font-size: var(--font-size-h-500); line-height: 1.5rem; }
+.h-600 { font-size: var(--font-size-h-600); line-height: 1.25rem; }
+.h-700 { font-size: var(--font-size-h-700); line-height: 0.875rem; }
+.h-800 { font-size: var(--font-size-h-800); line-height: 0.875rem; }
+
+.text-secondary { color: var(--aha-color-text-secondary); }
+.text-tertiary  { color: var(--aha-color-text-tertiary); }
+.text-medium    { font-weight: var(--font-weight-medium); }
+.text-semibold  { font-weight: var(--font-weight-semibold); }
+
+/* Layout helpers. Aha! composes with rows and stacks. */
+.row   { display: flex; align-items: center; gap: var(--spacer-2); }
+.row-2 { display: flex; align-items: center; gap: var(--spacer-2); }
+.row-3 { display: flex; align-items: center; gap: var(--spacer-3); }
+.row-4 { display: flex; align-items: center; gap: var(--spacer-4); }
+.stack { display: flex; flex-direction: column; gap: var(--spacer-2); }
+.stack-4 { display: flex; flex-direction: column; gap: var(--spacer-4); }
+.spacer { flex: 1; }
+
+/* ==========================================================================
+   Icons
+   ========================================================================== */
+
+.icon {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  flex: none;
+  vertical-align: -0.125em;
+}
+.icon-14 { width: 14px; height: 14px; }
+.icon-16 { width: 16px; height: 16px; }
+.icon-18 { width: 18px; height: 18px; }
+.icon-24 { width: 24px; height: 24px; }
+
+/* Colored tile wrapping a glyph. Mirrors aha-graphic-icon. */
+.graphic-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--aha-border-radius);
+  background: var(--gi-bg, var(--aha-color-background-tertiary));
+  color: var(--gi-fg, var(--aha-color-text));
+  width: 30px;
+  height: 30px;
+}
+.graphic-icon.is-small  { width: 20px; height: 20px; }
+.graphic-icon.is-large  { width: 40px; height: 40px; }
+.graphic-icon.is-circle { border-radius: 50%; }
+
+.graphic-icon.is-blue     { --gi-bg: #ebf6ff; --gi-fg: #0073cf; }
+.graphic-icon.is-amethyst { --gi-bg: #f5eeff; --gi-fg: #662db5; }
+.graphic-icon.is-garnet   { --gi-bg: #fff0ee; --gi-fg: #c9250e; }
+.graphic-icon.is-jade     { --gi-bg: #f8ffeb; --gi-fg: #5e8c05; }
+.graphic-icon.is-gold     { --gi-bg: #fffcee; --gi-fg: #8d7700; }
+.graphic-icon.is-gray     { --gi-bg: #f1f1f1; --gi-fg: #666666; }
+
+/* ==========================================================================
+   Buttons. Sixteen kinds exist; these are the ones prototypes need.
+   One filled primary per view. Everything beside it is secondary or ghost.
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacer-1);
+  height: var(--control-height);
+  padding: 4px 12px;
+  font-family: inherit;
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  white-space: nowrap;
+  border-radius: var(--aha-border-radius);
+  border: 1px solid var(--aha-color-border-button);
+  background: var(--aha-color-background-button);
+  color: var(--aha-color-text);
+  cursor: pointer;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+.btn:hover { background: var(--aha-color-background-button-hovered); text-decoration: none; }
+.btn:active, .btn.is-active { background: var(--aha-color-background-button-active); }
+.btn:disabled, .btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--aha-color-background-button-primary);
+  border-color: var(--aha-color-background-button-primary);
+  color: #ffffff;
+}
+.btn-primary:hover  { background: var(--aha-color-background-button-primary-hovered); border-color: var(--aha-color-background-button-primary-hovered); }
+.btn-primary:active { background: var(--aha-color-background-button-primary-active); border-color: var(--aha-color-background-button-primary-active); }
+
+.btn-secondary {
+  background: var(--aha-color-background-button);
+  border-color: var(--aha-color-border-button-secondary);
+  color: var(--aha-color-text-link);
+}
+
+.btn-gray {
+  background: var(--aha-color-background-button-gray);
+  border-color: var(--aha-color-background-button-gray);
+}
+.btn-gray:hover { background: var(--aha-color-background-button-gray-hovered); }
+
+.btn-success {
+  background: var(--aha-color-background-button-success);
+  border-color: var(--aha-color-background-button-success);
+  color: #ffffff;
+}
+.btn-success:hover { background: var(--aha-color-background-button-success-hovered); }
+
+.btn-danger {
+  background: var(--aha-color-background-button-danger);
+  border-color: var(--aha-color-background-button-danger);
+  color: #ffffff;
+}
+.btn-danger:hover { background: var(--aha-color-background-button-danger-hovered); }
+
+.btn-warning {
+  background: var(--aha-color-background-button-warning);
+  border-color: var(--aha-color-background-button-warning);
+  color: var(--aha-color-text);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--aha-color-text-link);
+}
+.btn-ghost:hover { background: var(--aha-color-background-button-ghost-hovered); }
+
+.btn-link {
+  background: transparent;
+  border-color: transparent;
+  color: var(--aha-color-text-link);
+  padding: 0;
+  height: auto;
+}
+.btn-link:hover { background: transparent; text-decoration: underline; }
+
+.btn-icon {
+  background: transparent;
+  border-color: transparent;
+  color: var(--aha-color-text-secondary);
+  padding: 0;
+  width: var(--control-height);
+}
+.btn-icon:hover { background: var(--aha-color-background-hover); }
+
+/* AI buttons paint a gradient border on hover rather than a gradient fill. */
+.btn-ai { position: relative; background: var(--aha-color-background-button); }
+.btn-ai:hover {
+  background:
+    linear-gradient(var(--aha-color-background-button), var(--aha-color-background-button)) padding-box,
+    linear-gradient(90deg, rgb(200, 142, 255), rgb(112, 96, 255)) border-box;
+  border-color: transparent;
+}
+
+.btn-outline { background: transparent; }
+.btn-outline.btn-primary { color: var(--aha-color-text-link); border-color: var(--aha-color-background-button-primary); }
+.btn-outline.btn-danger  { color: var(--aha-color-background-button-danger); border-color: var(--aha-color-background-button-danger); }
+
+.btn-xsmall { height: 22px; padding: 0 4px; font-size: 11px; min-width: 2em; }
+.btn-small  { height: 26px; padding: 2px 10px; font-size: 11.9px; }
+.btn-large  { height: 42px; padding: 11px 19px; font-size: 17.5px; }
+.btn-full   { width: 100%; }
+
+.btn-group { display: inline-flex; }
+.btn-group .btn { border-radius: 0; margin-left: -1px; }
+.btn-group .btn:first-child { border-radius: var(--aha-border-radius) 0 0 var(--aha-border-radius); margin-left: 0; }
+.btn-group .btn:last-child  { border-radius: 0 var(--aha-border-radius) var(--aha-border-radius) 0; }
+
+/* ==========================================================================
+   Cards. The left accent border encodes record type or status.
+   ========================================================================== */
+
+.card {
+  display: block;
+  background: var(--aha-color-background-accent);
+  border: 1px solid var(--aha-color-border-primary);
+  border-left: 5px solid var(--card-accent, var(--aha-color-border-secondary));
+  border-radius: var(--aha-border-radius);
+  padding: var(--spacer-2);
+  font-size: var(--font-size-300);
+  color: var(--aha-color-text-secondary);
+}
+.card.is-selected { box-shadow: var(--aha-shadow-focus); }
+.card.is-dragging { box-shadow: var(--aha-shadow-medium); }
+.card-row { display: flex; align-items: center; gap: var(--spacer-1); padding: var(--spacer-05) 0; }
+.card-row.is-between { justify-content: space-between; }
+.card-field { padding: var(--spacer-05) 0; }
+.card-field.title-field {
+  font-size: var(--font-size-100);
+  font-weight: var(--font-weight-medium);
+  color: var(--aha-color-text);
+}
+.card-divider { height: 1px; background: var(--aha-color-border-light); margin: var(--spacer-1) 0; }
+
+/* ==========================================================================
+   Pills, badges, tags, record references
+   ========================================================================== */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  padding: 1px var(--spacer-2);
+  border-radius: var(--aha-border-radius);
+  font-size: var(--font-size-300);
+  line-height: 15px;
+  background: var(--pill-bg, var(--aha-color-background-tertiary));
+  color: var(--pill-fg, var(--aha-color-text));
+  white-space: nowrap;
+}
+.pill.is-green  { --pill-bg: #e5f3d6; --pill-fg: #4f8f0e; }
+.pill.is-blue   { --pill-bg: #ebf6ff; --pill-fg: #0073cf; }
+.pill.is-red    { --pill-bg: #fff0ee; --pill-fg: #9c1f0e; }
+.pill.is-yellow  { --pill-bg: #fff6cc; --pill-fg: var(--aha-color-text); }
+.pill.is-purple  { --pill-bg: #eadaff; --pill-fg: var(--aha-color-text); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--aha-border-radius-round);
+  background: var(--aha-color-background-button-primary);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  padding: 1px var(--spacer-2);
+  border-radius: var(--aha-border-radius-small);
+  background: var(--aha-color-background-tertiary);
+  color: var(--aha-color-text-secondary);
+  font-size: 11px;
+}
+
+.record-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-1);
+  padding: 1px var(--spacer-1);
+  border-radius: var(--aha-border-radius-small);
+  background: var(--aha-color-background-tertiary);
+  color: var(--aha-color-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 18px;
+  border-radius: var(--aha-border-radius-small);
+  background: var(--aha-color-background-tertiary);
+  color: var(--aha-color-text);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
+
+.alert {
+  display: flex;
+  gap: var(--spacer-2);
+  padding: var(--spacer-3);
+  border-radius: var(--aha-border-radius);
+  border-left: 3px solid var(--alert-border);
+  background: var(--alert-bg);
+  color: var(--alert-fg, var(--aha-color-text));
+  font-size: var(--font-size-300);
+}
+.alert-icon { color: var(--alert-border); flex: none; margin-top: 1px; }
+.alert-heading { font-weight: var(--font-weight-semibold); margin-bottom: var(--spacer-1); }
+.alert.is-info    { --alert-bg: #ebf6ff; --alert-border: #0073cf; --alert-fg: #053561; }
+.alert.is-success { --alert-bg: #f8ffeb; --alert-border: #5e8c05; --alert-fg: #5e8c05; }
+.alert.is-warning { --alert-bg: #fffcee; --alert-border: #b09506; --alert-fg: #8d7700; }
+.alert.is-danger  { --alert-bg: #fff0ee; --alert-border: #c9250e; --alert-fg: #9c1f0e; }
+.alert.is-ai      { --alert-bg: #f5eeff; --alert-border: #662db5; --alert-fg: var(--aha-color-text); }
+
+/* ==========================================================================
+   Form controls
+   ========================================================================== */
+
+.field { display: flex; flex-direction: column; gap: var(--spacer-1); }
+.field-label {
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-medium);
+  color: var(--aha-color-text-secondary);
+}
+.field-hint { font-size: 11px; color: var(--aha-color-text-tertiary); }
+
+.input, .select, .textarea {
+  height: var(--control-height);
+  padding: 0 var(--spacer-2);
+  font-family: inherit;
+  font-size: var(--font-size-300);
+  color: var(--aha-color-text);
+  background: var(--aha-color-background-input);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius);
+  width: 100%;
+}
+.textarea { height: auto; padding: var(--spacer-2); resize: vertical; }
+.input::placeholder, .textarea::placeholder { color: var(--aha-color-text-input-placeholder); }
+.input:focus, .select:focus, .textarea:focus { outline: none; box-shadow: var(--aha-shadow-focus); }
+
+.search-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacer-2);
+  height: var(--control-height);
+  width: 220px;
+  padding: 0 var(--spacer-3);
+  border-radius: var(--aha-border-radius-round);
+  background: var(--aha-color-background-input);
+  box-shadow: 0 0 0 1px var(--aha-color-border-primary);
+  color: var(--aha-color-text-tertiary);
+}
+.search-field:focus-within { box-shadow: var(--aha-shadow-focus); }
+.search-field input {
+  border: 0; outline: none; background: transparent; flex: 1;
+  font-family: inherit; font-size: var(--font-size-300); color: var(--aha-color-text);
+}
+
+.toggle {
+  position: relative; display: inline-block; width: 28px; height: 16px;
+  background: var(--aha-color-border-secondary);
+  border-radius: var(--aha-border-radius-round);
+  cursor: pointer; transition: background 0.15s ease;
+}
+.toggle::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px; border-radius: 50%; background: #ffffff;
+  transition: transform 0.15s ease;
+}
+.toggle.is-on { background: var(--aha-color-background-button-primary); }
+.toggle.is-on::after { transform: translateX(12px); }
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--aha-color-background-tertiary);
+  border-radius: var(--aha-border-radius);
+}
+.segmented button {
+  border: 0; background: transparent; cursor: pointer;
+  padding: 3px var(--spacer-3); border-radius: 3px;
+  font-family: inherit; font-size: var(--font-size-300); color: var(--aha-color-text-secondary);
+}
+.segmented button.is-active {
+  background: var(--aha-color-background-primary);
+  color: var(--aha-color-text);
+  box-shadow: var(--aha-shadow-small);
+}
+
+/* ==========================================================================
+   Avatars
+   ========================================================================== */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--aha-color-background-primary);
+  background: var(--aha-color-background-tertiary);
+  color: var(--aha-color-text-secondary);
+  font-size: 9px;
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  flex: none;
+}
+.avatar.is-xsmall { width: 14px; height: 14px; font-size: 8px; }
+.avatar.is-large  { width: 24px; height: 24px; font-size: 10px; }
+.avatar-stack { display: inline-flex; }
+.avatar-stack .avatar + .avatar { margin-left: -6px; }
+
+.user-tag {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  padding: 1px var(--spacer-2) 1px 2px;
+  border-radius: var(--aha-border-radius-round);
+  background: var(--aha-color-background-tertiary);
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+
+.tabs { display: flex; gap: var(--spacer-4); height: 43px; align-items: stretch; border-bottom: 1px solid var(--aha-color-border-primary); }
+.tab {
+  padding: var(--spacer-2) 0;
+  border: 0; background: none; cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--aha-color-text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab.is-active { color: var(--aha-color-text-link); border-bottom-color: var(--aha-color-text-link); }
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--aha-color-border-primary); border-radius: var(--aha-border-radius); background: var(--aha-color-background-primary); }
+.table { border-collapse: collapse; font-size: var(--font-size-300); }
+.table--fill { width: 100%; }
+.table th {
+  text-align: left;
+  padding: 14px 12px 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--aha-color-text-secondary);
+  background: var(--aha-color-background-secondary);
+  border-bottom: 1px solid var(--aha-color-border-secondary);
+  white-space: nowrap;
+}
+.table td {
+  height: 44px;
+  padding: 12px;
+  border-bottom: 1px solid var(--aha-color-border-secondary);
+  vertical-align: middle;
+}
+.table tbody tr:hover { background: var(--aha-color-background-secondary); }
+.table tbody tr:last-child td { border-bottom: 0; }
+
+/* ==========================================================================
+   Panels, menus, modals
+   ========================================================================== */
+
+.panel {
+  background: var(--aha-color-background-primary);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius);
+}
+.panel-header {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  padding: var(--spacer-3) var(--spacer-4);
+  border-bottom: 1px solid var(--aha-color-border-light);
+  font-weight: var(--font-weight-medium);
+}
+.panel-body { padding: var(--spacer-4); }
+
+.menu {
+  min-width: 200px;
+  padding: var(--spacer-2) 0;
+  background: var(--aha-color-background-primary);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius);
+  box-shadow: var(--aha-shadow-medium);
+}
+.menu-group-header {
+  padding: var(--spacer-1) var(--spacer-3);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--aha-color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.menu-item {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  padding: var(--spacer-1) var(--spacer-3);
+  cursor: pointer;
+  color: var(--aha-color-text);
+}
+.menu-item:hover { background: var(--aha-color-background-list-item-hover, var(--aha-color-background-secondary)); }
+.menu-item.is-active { background: var(--aha-color-background-list-item-active, #dbefff); }
+.menu-divider { height: 1px; background: var(--aha-color-border-light); margin: var(--spacer-2) 0; }
+
+.modal-scrim {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal {
+  width: 560px; max-width: calc(100vw - 32px);
+  background: var(--aha-color-background-primary);
+  border-radius: var(--aha-border-radius-large);
+  box-shadow: var(--aha-shadow-large);
+  overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--spacer-4);
+  border-bottom: 1px solid var(--aha-color-border-light);
+  font-size: var(--font-size-h-500);
+  font-weight: var(--font-weight-semibold);
+}
+.modal-body { padding: var(--spacer-4); }
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: var(--spacer-2);
+  padding: var(--spacer-3) var(--spacer-4);
+  border-top: 1px solid var(--aha-color-border-light);
+  background: var(--aha-color-background-secondary);
+}
+
+/* ==========================================================================
+   Progress and empty states
+   ========================================================================== */
+
+.progress-bar {
+  height: 6px; border-radius: var(--aha-border-radius-round);
+  background: var(--aha-color-background-tertiary); overflow: hidden;
+}
+.progress-bar > span {
+  display: block; height: 100%;
+  background: var(--aha-color-background-button-primary);
+  border-radius: inherit;
+}
+
+.progress-steps { display: flex; align-items: center; gap: var(--spacer-2); }
+.progress-step { display: flex; align-items: center; gap: var(--spacer-2); color: var(--aha-color-text-tertiary); }
+.progress-step .dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid var(--aha-color-border-secondary);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
+}
+.progress-step.is-done .dot { background: var(--aha-color-background-button-primary); border-color: transparent; color: #fff; }
+.progress-step.is-done, .progress-step.is-current { color: var(--aha-color-text); }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: var(--spacer-3);
+  padding: var(--spacer-10) var(--spacer-4);
+  text-align: center;
+  color: var(--aha-color-text-secondary);
+}
+.empty-state .h-500 { color: var(--aha-color-text); }
+
+/* ==========================================================================
+   Application chrome
+   ========================================================================== */
+
+.app { display: flex; flex-direction: column; min-height: 100vh; background: var(--aha-color-background-container); }
+
+.top-nav {
+  display: flex; align-items: center; gap: var(--spacer-4);
+  height: var(--top-nav-height);
+  padding: 0 var(--spacer-3);
+  background: var(--aha-color-background-secondary);
+  border-bottom: 1px solid var(--aha-color-border-light);
+  flex: none;
+}
+.top-nav .brand { display: inline-flex; align-items: center; gap: var(--spacer-2); font-weight: var(--font-weight-semibold); }
+.top-nav-item {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  padding: var(--spacer-1) var(--spacer-2);
+  border-radius: var(--aha-border-radius);
+  color: var(--aha-color-text-secondary); cursor: pointer;
+}
+.top-nav-item:hover { background: var(--aha-color-background-secondary); text-decoration: none; }
+.top-nav-item.is-active {
+  color: var(--aha-color-text);
+  font-weight: var(--font-weight-medium);
+  background: var(--aha-color-background-primary);
+  align-self: stretch;
+  border-radius: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.workspace-picker {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  height: 24px; padding: 0 var(--spacer-2);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.main { display: flex; flex: 1; min-height: 0; }
+.content { flex: 1; min-width: 0; padding: var(--spacer-5); }
+
+/* Page header: title, one filled primary action, then secondary actions.
+   View controls belong in the toolbar below, never up here. */
+.page-header { display: flex; align-items: center; gap: var(--spacer-3); margin-bottom: var(--spacer-4); }
+.page-title { font-size: 28px; font-weight: var(--font-weight-medium); line-height: 1.2; margin: 0; }
+
+.toolbar {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  padding-bottom: var(--spacer-3);
+  margin-bottom: var(--spacer-3);
+  border-bottom: 1px solid var(--aha-color-border-primary);
+}
+
+.side-panel {
+  width: var(--side-panel-width); flex: none;
+  background: var(--aha-color-background-primary);
+  border-left: 1px solid var(--aha-color-border-primary);
+  display: flex; flex-direction: column;
+}
+.side-panel-header {
+  height: var(--side-panel-header-height); flex: none;
+  display: flex; align-items: center; gap: var(--spacer-2);
+  padding: 0 var(--spacer-4);
+  border-bottom: 1px solid var(--aha-color-border-light);
+  font-weight: var(--font-weight-medium);
+}
+.side-panel-body { padding: var(--spacer-4); overflow-y: auto; }
+
+.settings-nav { width: 240px; flex: none; padding: var(--spacer-4) var(--spacer-2); border-right: 1px solid var(--aha-color-border-primary); background: var(--aha-color-background-primary); }
+.settings-nav a {
+  display: block; padding: var(--spacer-1) var(--spacer-3);
+  border-radius: var(--aha-border-radius); color: var(--aha-color-text);
+}
+.settings-nav a:hover { background: var(--aha-color-background-secondary); text-decoration: none; }
+.settings-nav a.is-active { background: var(--aha-color-background-list-item-active, #dbefff); color: var(--aha-color-text-link); }
+
+/* Attribute panel: label and value rows on a record detail */
+.attr-row { display: grid; grid-template-columns: 121px 1fr; gap: var(--spacer-2); min-height: 45px; padding: 13px 0; align-items: center; border-bottom: 1px solid var(--aha-color-border-light); }
+.attr-label { color: var(--aha-color-text-secondary); }
+
+/* ==========================================================================
+   Board
+   ========================================================================== */
+
+.board { display: flex; gap: 0; align-items: flex-start; overflow-x: auto; padding-bottom: var(--spacer-3); }
+.board-column {
+  width: var(--board-column-width); flex: none;
+  background: var(--aha-color-background-primary);
+  padding: 0 var(--spacer-1) 0 10px;
+}
+.board-column-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--spacer-1) var(--spacer-1) var(--spacer-2);
+  font-weight: var(--font-weight-medium);
+}
+.board-column .card { width: var(--board-card-width); margin-bottom: 10px; }
+.board-add {
+  width: 100%; padding: var(--spacer-2);
+  border: 1px dashed var(--aha-color-border-secondary);
+  border-radius: var(--aha-border-radius);
+  background: transparent; color: var(--aha-color-text-secondary);
+  font-family: inherit; font-size: var(--font-size-300); cursor: pointer;
+}
+.board-add:hover { background: var(--aha-color-background-hover); }
+
+/* ==========================================================================
+   Elle surfaces
+   ========================================================================== */
+
+.elle-icon { width: 18px; height: 18px; flex: none; }
+.elle-sparkle { width: 12px; height: 12px; flex: none; }
+
+.ai-trigger {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  padding: var(--spacer-1) var(--spacer-2);
+  border: 1px solid transparent; border-radius: var(--aha-border-radius);
+  background: transparent; color: var(--aha-color-text-secondary);
+  font-family: inherit; font-size: var(--font-size-300); cursor: pointer;
+}
+.ai-trigger:hover { background: #f5eeff; color: #662db5; }
+
+.elle-panel {
+  width: var(--side-panel-width); flex: none;
+  display: flex; flex-direction: column;
+  background: var(--aha-color-background-primary);
+  border-left: 1px solid var(--aha-color-border-primary);
+}
+.elle-composer {
+  margin: var(--spacer-3);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius);
+  background: var(--aha-color-background-input);
+  padding: var(--spacer-2);
+  min-height: 51px;
+  display: flex; flex-direction: column; gap: var(--spacer-2);
+}
+.elle-composer input {
+  border: 0; outline: none; background: transparent;
+  font-family: inherit; font-size: 13px; color: var(--aha-color-text);
+}
+.elle-composer-toolbar { display: flex; align-items: center; gap: var(--spacer-1); }
+
+.ai-result {
+  border: 1px solid #662db5;
+  border-radius: var(--aha-border-radius);
+  background: #f5eeff;
+  padding: var(--spacer-3);
+}
+
+/* ==========================================================================
+   Layout archetypes and interactions.
+   Measured from the running application on 2026-08-12. See layouts.md.
+   ========================================================================== */
+
+/* Page skeleton: three bands, none of which scroll at the page level. */
+.page-nav {
+  background: var(--aha-color-background-primary);
+  padding: var(--spacer-3) var(--spacer-4) var(--spacer-4);
+  flex: none;
+}
+.page-nav__row { display: flex; align-items: center; gap: var(--spacer-3); }
+.page-nav__row + .page-nav__row { margin-top: var(--spacer-2); height: var(--control-height); }
+
+/* Collapsed rail on either edge of the content region. */
+.rail {
+  width: var(--rail-width); flex: none;
+  background: var(--aha-color-background-secondary);
+  border-left: 1px solid var(--aha-color-border-light);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: var(--spacer-3);
+  color: var(--aha-color-text-secondary);
+}
+.rail--left { border-left: 0; border-right: 1px solid var(--aha-color-border-light); }
+.rail__label { writing-mode: vertical-rl; margin-top: var(--spacer-3); font-size: var(--font-size-300); }
+
+/* Record detail: two columns, left scrolls independently. */
+.record-detail { display: flex; flex: 1; min-height: 0; }
+.record-detail__main {
+  flex: 1; min-width: 0; padding: 0 25px; overflow-y: auto;
+  background: var(--aha-color-background-primary);
+}
+.record-detail__attrs {
+  width: var(--side-panel-width); flex: none; padding: 0 25px; overflow-y: auto;
+}
+@media (min-width: 64em) {
+  .record-detail__attrs .attr-row { grid-template-columns: 121px 1fr; }
+}
+@media (max-width: 64em) {
+  .record-detail { flex-direction: column; }
+  .record-detail__attrs { width: auto; }
+  .attr-row { grid-template-columns: 1fr; }
+}
+
+/* Frozen pane beside a scrolling timeline, as used by Gantt. */
+.split-pane { display: flex; flex: 1; min-height: 0; }
+.split-pane__frozen {
+  width: var(--gantt-label-width); flex: none;
+  background: var(--aha-color-background-secondary);
+  border-right: 1px solid var(--aha-color-border-primary);
+  overflow: hidden;
+}
+.split-pane__scroll { flex: 1; min-width: 0; overflow-x: auto; overflow-y: hidden; }
+.timeline-header { display: flex; border-bottom: 1px solid var(--aha-color-border-primary); }
+.timeline-header__quarter {
+  border-right: 1px solid var(--aha-color-border-light);
+  padding: var(--spacer-1) var(--spacer-2);
+  font-weight: var(--font-weight-semibold);
+}
+.timeline-today {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--aha-color-text-link);
+}
+
+/* Nav hover menu. Opens on hover, hangs off the nav band, square on top. */
+.top-nav .has-menu { position: relative; }
+.top-nav .has-menu > .menu {
+  position: absolute; top: 100%; left: 0;
+  visibility: hidden;
+  border-radius: 0 0 var(--aha-border-radius) var(--aha-border-radius);
+  border-top: 0;
+  padding: var(--spacer-3) var(--spacer-1) var(--spacer-2);
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.08);
+  min-width: 160px;
+}
+.top-nav .has-menu:hover > .menu { visibility: visible; }
+
+/* Record drawer. Slides on right, no scrim, page behind is scroll locked. */
+.drawer {
+  position: fixed; top: 60px; bottom: 0; right: calc(-1 * var(--drawer-width));
+  width: var(--drawer-width); z-index: 900; opacity: 0;
+  background: var(--aha-color-background-primary);
+  border-left: 1px solid var(--aha-color-border-primary);
+  box-shadow: -2px 0 10px 2px rgba(0, 0, 0, 0.15);
+  display: flex; flex-direction: column;
+  transition: opacity 0.3s linear, right 0.3s ease-out;
+}
+.drawer.is-open { right: 0; opacity: 1; }
+.drawer__header {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  padding: var(--spacer-3) var(--spacer-4); flex: none;
+}
+.drawer__contents { flex: 1; overflow-y: auto; padding: 0 var(--spacer-4) var(--spacer-4); }
+body.drawer-open { overflow: hidden; }
+
+/* Selection persists on the originating card while the drawer is open. */
+.card.is-selected { box-shadow: 0 0 0 2px var(--aha-color-text-link); }
+
+/* Responsive chrome. Labels go before structure does. */
+@media (max-width: 1400px) {
+  .workspace-picker { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 1250px) {
+  .top-nav-item .label { display: none; }
+  .top-nav-item { border-left: 1px solid var(--aha-color-border-light); }
+  .top-nav-item:last-of-type { border-right: 1px solid var(--aha-color-border-light); }
+}
+@media (max-width: 900px) {
+  .workspace-picker { max-width: 100px; }
+}
+@media (max-width: 875px) {
+  .drawer { width: 75%; right: -75%; }
+}
+
+/* Master detail: list rail, detail, attributes. No global page-nav band. */
+.master-detail { display: flex; flex: 1; min-height: 0; }
+.master-detail__rail {
+  width: 350px; flex: none; overflow-y: auto;
+  background: var(--aha-color-background-primary);
+  border-right: 1px solid var(--aha-color-border-primary);
+  padding: var(--spacer-3) var(--spacer-4);
+}
+.master-detail__rail-title { font-size: var(--font-size-h-500); font-weight: var(--font-weight-regular); margin: 0; }
+.master-detail__content { flex: 1; min-width: 0; overflow-y: auto; }
+
+/* Nav sidebar, as used by My work and the report library. */
+.nav-sidebar {
+  width: 316px; flex: none; overflow-y: auto;
+  background: var(--aha-color-background-primary);
+  padding: var(--spacer-2) var(--spacer-4);
+}
+.nav-sidebar--gray { background: var(--aha-color-background-secondary); width: 360px; }
+.nav-sidebar__item {
+  display: flex; align-items: center; gap: var(--spacer-2);
+  height: 40px; padding: 0 var(--spacer-1);
+  border-radius: var(--aha-border-radius);
+  color: var(--aha-color-text); cursor: pointer;
+}
+.nav-sidebar__item:hover { background: var(--aha-color-background-secondary); text-decoration: none; }
+.nav-sidebar__item.is-active { background: var(--aha-color-background-list-item-active, #dbefff); }
+.nav-sidebar__item--compact { height: 30px; }
+.nav-sidebar__group-header {
+  font-size: 11px; font-weight: var(--font-weight-semibold); letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--aha-color-text-tertiary);
+  padding: var(--spacer-3) var(--spacer-1) var(--spacer-1);
+}
+
+/* Settings: gray content region, gray active nav state, shorter rows. */
+.settings-layout { display: flex; flex: 1; min-height: 0; }
+.settings-nav {
+  width: 330px; flex: none; padding: var(--spacer-4); overflow-y: auto;
+  border-right: 1px solid var(--aha-color-border-primary);
+}
+.settings-nav a {
+  display: block; padding: 3px 15px; border-radius: var(--aha-border-radius);
+  color: var(--aha-color-text); line-height: 21px;
+}
+.settings-nav a:hover { background: var(--aha-color-background-secondary); text-decoration: none; }
+.settings-nav a.is-active { background: var(--aha-color-background-tertiary); }
+.settings-content {
+  flex: 1; min-width: 0; overflow-y: auto;
+  background: var(--aha-color-background-secondary);
+  padding: var(--spacer-6) var(--spacer-6) 0;
+}
+
+/* Library patterns from the report home. */
+.action-tile {
+  display: flex; align-items: center; justify-content: center; gap: var(--spacer-2);
+  min-height: 80px; border-radius: var(--aha-border-radius);
+  background: #ebf6ff; color: var(--aha-color-text-link);
+  font-size: var(--font-size-050); font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacer-4); }
+.thumb-card {
+  border-radius: var(--aha-border-radius); background: #dbefff;
+  padding: var(--spacer-3); cursor: pointer;
+}
+.thumb-card__preview {
+  background: var(--aha-color-background-primary);
+  border: 1px solid var(--aha-color-border-primary);
+  border-radius: var(--aha-border-radius-small);
+  aspect-ratio: 16 / 10; margin-bottom: var(--spacer-2);
+}
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacer-3); }
+.section-header__title { font-size: var(--font-size-100); font-weight: var(--font-weight-semibold); }
+
+/* Content pane heading with its own primary action, below the page title. */
+.pane-header { display: flex; align-items: center; gap: var(--spacer-3); margin-bottom: var(--spacer-3); }
+.pane-header__title { font-size: var(--font-size-h-200); font-weight: var(--font-weight-semibold); margin: 0; }
+
+/* Filter chip row, as used on My work. */
+.filter-bar { display: flex; align-items: center; gap: var(--spacer-2); flex-wrap: wrap; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: var(--spacer-1);
+  height: var(--control-height); padding: 0 var(--spacer-2);
+  border: 1px solid var(--aha-color-border-primary); border-radius: var(--aha-border-radius);
+  background: var(--aha-color-background-primary); cursor: pointer;
+}
